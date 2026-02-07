@@ -6,9 +6,13 @@ The TaskBeacon project follows a simple, professional Git workflow designed to k
 
 All feature work is done on branches and merged into `main` via Pull Requests using **squash merge**.
 
-## Branch Naming Convention
+## Branch & Commit Naming Convention
 
 ### Format:
+
+- Branch format: `type`/`short-description`
+- Commit format: `type`: `short-description`
+
 Types
 - **init:** initial project setup and repository scaffolding
 - **feat:** new feature
@@ -18,3 +22,12 @@ Types
 - **refactor:** code restructure without behavior change
 - **test:** adding/improving tests
 
+### Examples
+
+Branch:
+- `feat/task-crud`
+- `chore/docker-setup`
+
+Commit:
+- `feat: add task CRUD endpoints`
+- `docs: update README setup instructions`
