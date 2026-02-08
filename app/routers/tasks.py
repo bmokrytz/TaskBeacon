@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Response
 from app.models.task import Task, TaskCreate, TaskUpdate
 from app.storage.in_memory import list_tasks, create_task, get_task, update_task, delete_task
 from uuid import UUID
@@ -11,6 +11,9 @@ def list_tasks_endpoint():
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=Task)
 def create_task_endpoint(data: TaskCreate):
+    task = create_task(data)
+    return task
+        
     return create_task(data)
 
 @router.get("/{task_id}", response_model=Task)
