@@ -1,6 +1,8 @@
 # TaskBeacon
 
-TaskBeacon is a cloud-deployed, production-minded task management API built with FastAPI, Postgres, and Docker. The project focuses on backend system design, authentication, and service reliability rather than frontend UI.
+TaskBeacon is a backend task management API built with FastAPI.
+The project is being developed incrementally toward a production-ready system
+with authentication, persistent storage, and cloud deployment.
 
 ---
 
@@ -18,10 +20,11 @@ TaskBeacon is a cloud-deployed, production-minded task management API built with
 ```mermaid
 flowchart LR
     Client[API Client / Swagger UI / Postman] --> API[FastAPI Service]
-    API --> Auth[JWT Middleware]
-    API --> RateLimit[Rate Limiter]
-    API --> DB[(Postgres Database)]
+    API --> Storage[In-Memory Task Store]
+
 ```
+> Note: Future milestones will introduce authentication, rate limiting, and a Postgres database.  
+> See `docs/architecture.md` for the planned production architecture.
 
 
 For more detail, see:
@@ -33,7 +36,37 @@ For more detail, see:
 ---
 
 ## Local Development
-Local setup instructions will be added in Milestone 1.
+### Local run instructions for TaskBeacon (v0.1.0):
+#### Create a Python virtual environment and install dependencies
+1. Open a terminal in the project root directory
+2. In your terminal, enter `python -m venv .venv`. This will create the python virtual environment in folder `.venv/`
+3. Activate the virtual environment with:
+
+**Powershell**
+```powershell
+.venv/Scripts/Activate.ps1
+```
+**Linux / Mac**
+```bash
+source .venv/bin/activate
+```
+Your terminal should now look something like this:
+```terminal
+(.venv) PS C:\PathToTaskBeacon\TaskBeacon>
+```
+4. With the python virtual environment activated, install the project dependencies outlined in requirements.txt with `pip install -r requirements.txt`
+
+#### Running TaskBeacon
+1. Ensure that the virtual environment is activated
+2. Start the server with `uvicorn app.main:app --reload`. You should see something like this:
+```terminal
+(.venv) PS C:\PathToTaskBeacon\TaskBeacon> uvicorn app.main:app --reload
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Application startup complete.
+```
+3. Open a web browser and navigate to `http://127.0.0.1:8000/docs`
+4. Use Swagger UI to test the available API endpoints and manage tasks
+
 
 ---
 
