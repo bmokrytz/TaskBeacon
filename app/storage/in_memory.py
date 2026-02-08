@@ -38,17 +38,23 @@ def update_task(task_id: UUID, data: TaskUpdate) -> Optional[Task]:
     task = tasks.get(str(task_id))
     if not task:
         return None
+    
+    changed = False
 
     if data.title is not None:
         task.title = data.title
+        changed = True
 
     if data.description is not None:
         task.description = data.description
+        changed = True
 
     if data.status is not None:
         task.status = data.status
+        changed = True
 
-    task.updated_at = datetime.now(timezone.utc)
+    if changed:
+        task.updated_at = datetime.now(timezone.utc)
     return task
 
 
