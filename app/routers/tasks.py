@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Response
 from app.models.task import Task, TaskCreate, TaskUpdate
-from app.storage.in_memory import list_tasks, create_task, get_task, update_task, delete_task
+from app.storage.in_memory import list_tasks, create_task, get_task_by_id, update_task, delete_task
 from uuid import UUID
 import logging
 
@@ -20,9 +20,9 @@ def create_task_endpoint(data: TaskCreate):
     return task
 
 @router.get("/{task_id}", response_model=Task)
-def get_task_endpoint(task_id: UUID):
+def get_task_by_id_endpoint(task_id: UUID):
     logger.info("Fetching task id=%s", str(task_id))
-    task = get_task(task_id)
+    task = get_task_by_id(task_id)
     if not task:
         logger.warning("Task not found id=%s", str(task_id))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
