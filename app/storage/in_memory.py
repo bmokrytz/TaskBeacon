@@ -13,6 +13,12 @@ tasks: Dict[str, Task] = {}
 
 
 def create_task(data: TaskCreate) -> Task:
+    """
+    Create a new task.
+    - Create new task instance
+    - Store task
+    - Return task
+    """
     task_id = uuid4()
     now = datetime.now(timezone.utc)
 
@@ -31,14 +37,30 @@ def create_task(data: TaskCreate) -> Task:
 
 
 def get_task_by_id(task_id: UUID) -> Optional[Task]:
+    """
+    Fetch a task by id.
+    - Return task if it exists
+    - Return None otherwise
+    """
     return tasks.get(str(task_id))
 
 
 def list_tasks() -> List[Task]:
+    """
+    List all tasks.
+    - Not user specific. All in-memory tasks are returned as a list
+    """
     return list(tasks.values())
 
 
 def update_task(task_id: UUID, data: TaskUpdate) -> Optional[Task]:
+    """
+    Update an existing task.
+    - Fetch task by id
+    - If no task matching id exists, return None
+    - Update task
+    - Return task
+    """
     task = tasks.get(str(task_id))
     if not task:
         return None
@@ -63,6 +85,11 @@ def update_task(task_id: UUID, data: TaskUpdate) -> Optional[Task]:
 
 
 def delete_task(task_id: UUID) -> bool:
+    """
+    Delete a task.
+    - Delete task and return True
+    - If no task matching id exists, return False
+    """
     task_id_str = str(task_id)
     if task_id_str in tasks:
         del tasks[task_id_str]

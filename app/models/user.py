@@ -11,6 +11,11 @@ class UserPublic(BaseModel):
     @field_validator("email")
     @classmethod
     def email_not_blank(cls, email_value: str) -> str:
+        """
+        Verify that input email is not blank.
+        - Strip whitespace and convert to lowercase
+        - If email is blank/empty raise ValueError
+        """
         email_value = email_value.strip().lower()
         if not email_value:
             raise ValueError("email cannot be empty")
@@ -23,6 +28,11 @@ class UserCreate(BaseModel):
     @field_validator("email")
     @classmethod
     def email_not_blank(cls, email_value: str) -> str:
+        """
+        Verify that input email is not blank.
+        - Strip whitespace and convert to lowercase
+        - If email is blank/empty raise ValueError
+        """
         email_value = email_value.strip().lower()
         if not email_value:
             raise ValueError("email cannot be empty")
@@ -31,6 +41,11 @@ class UserCreate(BaseModel):
     @field_validator("password")
     @classmethod
     def password_not_blank(cls, password_value: str) -> str:
+        """
+        Verify that input password is not blank.
+        - Strip whitespace
+        - If password is blank/empty raise ValueError
+        """
         password_value = password_value.strip()
         if not password_value:
             raise ValueError("password cannot be empty")
@@ -45,6 +60,11 @@ class User(BaseModel):
     @field_validator("email")
     @classmethod
     def email_not_blank(cls, email_value: str) -> str:
+        """
+        Verify that input email is not blank.
+        - Strip whitespace and convert to lowercase
+        - If email is blank/empty raise ValueError
+        """
         email_value = email_value.strip().lower()
         if not email_value:
             raise ValueError("email cannot be empty")
