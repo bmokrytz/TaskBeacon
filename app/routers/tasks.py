@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from app.models.task import Task, TaskCreate, TaskUpdate
+from app.models.task import TaskPublic, TaskCreate, TaskUpdate
 from app.models.user import User
 from app.auth.dependencies import get_current_user
-from app.storage.in_memory import list_tasks, create_task, get_task_by_id, update_task, delete_task
+from app.storage.in_memory import list_tasks, create_task, get_task_by_id_public, update_task, delete_task
 from uuid import UUID
 import logging
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
-@router.get("", response_model=list[Task])
+@router.get("", response_model=list[TaskPublic])
 def list_tasks_endpoint(current_user: User = Depends(get_current_user)):
     """
     Task listing endpoint.
@@ -19,7 +19,7 @@ def list_tasks_endpoint(current_user: User = Depends(get_current_user)):
     logger.info("Fetching tasks for user_id=%s", str(current_user.id))
     return list_tasks(user_id=current_user.id)
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=Task)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=TaskPublic)
 def create_task_endpoint(data: TaskCreate, current_user: User = Depends(get_current_user)):
     """
     Create new task endpoint.
@@ -31,7 +31,7 @@ def create_task_endpoint(data: TaskCreate, current_user: User = Depends(get_curr
     logger.info("Task created. id=%s", str(task.id))
     return task
 
-@router.get("/{task_id}", response_model=Task)
+@router.get("/{task_id}", response_model=TaskPublic)
 def get_task_by_id_endpoint(task_id: UUID, current_user: User = Depends(get_current_user)):
     """
     Fetch a task by id endpoint.
@@ -39,14 +39,14 @@ def get_task_by_id_endpoint(task_id: UUID, current_user: User = Depends(get_curr
     - Return task
     """
     logger.info("Fetching task id=%s", str(task_id))
-    task = get_task_by_id(task_id, user_id=current_user.id)
+    task = get_task_by_id_public(task_id, user_id=current_user.id)
     if not task:
         logger.warning("Task not found id=%s", str(task_id))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
     return task
 
 
-@router.patch("/{task_id}", response_model=Task)
+@router.patch("/{task_id}", response_model=TaskPublic)
 def update_task_endpoint(task_id: UUID, data: TaskUpdate, current_user: User = Depends(get_current_user)):
     """
     Update an existing task endpoint.
