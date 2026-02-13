@@ -67,6 +67,51 @@ INFO:     Application startup complete.
 3. Open a web browser and navigate to `http://127.0.0.1:8000/docs`
 4. Use Swagger UI to test the available API endpoints and manage tasks
 
+---
+
+## Authentication (Swagger UI)
+
+TaskBeacon uses JWT Bearer authentication. Many endpoints will require authentication.
+
+### 1) Register a user
+Call `POST /auth/register` with:
+```json
+{
+  "email": "you@example.com",
+  "password": "your-password"
+}
+```
+### 2) Login to get a token
+
+Call POST /auth/login with:
+```json
+{
+  "email": "you@example.com",
+  "password": "your-password"
+}
+```
+The response includes an access_token.
+
+### 3) Authorize in Swagger UI
+
+1. Open Swagger UI: http://127.0.0.1:8000/docs
+2. Click Authorize
+3. Paste your token in the `Value:` field
+```txt
+Value:
+<access_token>
+```
+4. Click **Authorize**
+
+### 4) Call protected endpoints
+
+Once authorized, you can call protected task endpoints like:
+- GET /tasks
+- POST /tasks
+- PATCH /tasks/{task_id}
+- DELETE /tasks/{task_id}
+
+If you call any /tasks endpoint without authorizing, the API returns 401 Unauthorized.
 
 ---
 
