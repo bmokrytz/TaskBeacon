@@ -117,6 +117,7 @@ class TaskUpdate(BaseModel):
 
 class Task(BaseModel):
     id: UUID
+    owner_id: UUID
     title: str = Field(..., min_length=1, max_length=120)
     description: Optional[str] = Field(None, max_length=400)
     status: TaskStatus = TaskStatus.pending
