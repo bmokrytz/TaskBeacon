@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from app.models.task import TaskPublic, TaskCreate, TaskUpdate
 from app.models.user import User
 from app.auth.dependencies import get_current_user
-from app.storage.in_memory import list_tasks, create_task, get_task_by_id_public, update_task, delete_task
+from app.storage.in_memory import list_tasks, create_task, get_task_by_id, update_task, delete_task
 from uuid import UUID
 import logging
 
@@ -39,7 +39,7 @@ def get_task_by_id_endpoint(task_id: UUID, current_user: User = Depends(get_curr
     - Return task
     """
     logger.info("Fetching task id=%s", str(task_id))
-    task = get_task_by_id_public(task_id, user_id=current_user.id)
+    task = get_task_by_id(task_id, user_id=current_user.id)
     if not task:
         logger.warning("Task not found id=%s", str(task_id))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
