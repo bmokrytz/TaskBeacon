@@ -1,11 +1,12 @@
-from fastapi import APIRouter, HTTPException, status
-from app.models.user import UserCreate, UserPublic
+from fastapi import APIRouter, HTTPException, Depends, status
+from app.models.user import User, UserCreate, UserPublic
 from app.auth.security import hash_password
 from app.storage.in_memory import create_user
 from app.models.auth import LoginRequest, TokenResponse
 from app.auth.security import verify_password
 from app.auth.jwt import create_access_token
 from app.storage.in_memory import get_user_by_email
+from app.auth.dependencies import get_current_user
 
 import logging
 
@@ -66,3 +67,11 @@ def login_endpoint(data: LoginRequest):
     return TokenResponse(access_token=token)
 
 
+@router.get("/auth/me", response_model=UserPublic)
+def me_endpoint(current_user: User = Depends(get_current_user)) -> UserPublic:
+    """
+    Get user info for logged in user.
+    - Verify user exists
+    - Return UserPublic
+    """
+    return UserPublic(id=current_user.id, email=current_user.email, created_at=current_user.created_at)
