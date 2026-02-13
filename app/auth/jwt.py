@@ -29,6 +29,15 @@ def create_access_token(*, user_id: str) -> str:
 
 def decode_access_token(token: str) -> dict:
     """
-    Returns the JWT payload dict if valid, otherwise raises JWTError.
+    Decode an access token.
+    - Returns the JWT payload dict if valid, otherwise raises JWTError.
     """
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+
+def get_token_subject(token: str) -> str:
+    """
+    Get access token subject.
+    - Returns the "sub" field from access token payload if token is valid, otherwise raises JWTError.
+    """
+    return decode_access_token(token).get("sub")
