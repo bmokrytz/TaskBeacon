@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
 
-from app.models.task import Task, TaskCreate, TaskUpdate
+from app.models.task import Task, TaskPublic, TaskCreate, TaskUpdate
 from app.models.user import User, UserPublic
 
 
@@ -13,7 +13,7 @@ from app.models.user import User, UserPublic
 tasks: Dict[str, Task] = {}
 
 
-def create_task(data: TaskCreate, user_id: UUID) -> Task:
+def create_task(data: TaskCreate, user_id: UUID) -> TaskPublic:
     """
     Create a new task.
     - Create new task instance
@@ -34,9 +34,25 @@ def create_task(data: TaskCreate, user_id: UUID) -> Task:
         updated_at=now,
     )
 
-    tasks[str(task_id)] = task
-    return task
+    task_public = get_task_public(task)
 
+    tasks[str(task_id)] = task
+    return task_public
+
+def get_task_public(task: Task) -> TaskPublic:
+    """
+    Return public version of a task (no owner id).
+    """
+    task_public = TaskPublic(
+        id=task.id,
+        title=task.title,
+        description=task.description,
+        status=task.status,
+        due_date=task.due_date,
+        created_at=task.created_at,
+        updated_at=task.updated_at,
+    )
+    return task_public
 
 def get_task_by_id(task_id: UUID, user_id: UUID) -> Optional[Task]:
     """
@@ -51,8 +67,21 @@ def get_task_by_id(task_id: UUID, user_id: UUID) -> Optional[Task]:
         return None
     return task
 
+def get_task_by_id_public(task_id: UUID, user_id: UUID) -> Optional[TaskPublic]:
+    """
+    Fetch a task by id.
+    - Return task if it exists
+    - Return None otherwise
+    """
+    task = tasks.get(str(task_id))
+    if not task:
+        return None
+    if task.owner_id != user_id:
+        return None
+    return get_task_public(task)
 
-def list_tasks(user_id: UUID) -> List[Task]:
+
+def list_tasks(user_id: UUID) -> List[TaskPublic]:
     """
     List all of the authenticated user's tasks.
     - Specific to user. Lists all tasks created by the authenticated user
@@ -60,11 +89,11 @@ def list_tasks(user_id: UUID) -> List[Task]:
     user_tasks = list()
     for task in tasks.values():
         if task.owner_id == user_id:
-            user_tasks.append(task)
+            user_tasks.append(get_task_public(task))
     return user_tasks
 
 
-def update_task(task_id: UUID, data: TaskUpdate, user_id: UUID) -> Optional[Task]:
+def update_task(task_id: UUID, data: TaskUpdate, user_id: UUID) -> Optional[TaskPublic]:
     """
     Update an existing task.
     - Fetch task by id
@@ -96,7 +125,7 @@ def update_task(task_id: UUID, data: TaskUpdate, user_id: UUID) -> Optional[Task
 
     if changed:
         task.updated_at = datetime.now(timezone.utc)
-    return task
+    return get_task_public(task)
 
 
 def delete_task(task_id: UUID, user_id: UUID) -> bool:
