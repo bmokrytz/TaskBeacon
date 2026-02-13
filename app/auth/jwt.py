@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt
-from jose.exceptions import JWTError
 
 # Move to env var later
 SECRET_KEY = "change-me"

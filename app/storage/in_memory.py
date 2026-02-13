@@ -3,7 +3,8 @@ from uuid import UUID, uuid4
 from datetime import datetime, timezone
 
 from app.models.task import Task, TaskCreate, TaskUpdate
-from app.models.user import User, UserCreate, UserPublic
+from app.models.user import User, UserPublic
+
 
 # In-memory store
 
@@ -12,7 +13,7 @@ from app.models.user import User, UserCreate, UserPublic
 tasks: Dict[str, Task] = {}
 
 
-def create_task(data: TaskCreate) -> Task:
+def create_task(data: TaskCreate, user_id: UUID) -> Task:
     """
     Create a new task.
     - Create new task instance
@@ -24,6 +25,7 @@ def create_task(data: TaskCreate) -> Task:
 
     task = Task(
         id=task_id,
+        owner_id=user_id,
         title=data.title,
         description=data.description,
         status=data.status,
@@ -36,24 +38,33 @@ def create_task(data: TaskCreate) -> Task:
     return task
 
 
-def get_task_by_id(task_id: UUID) -> Optional[Task]:
+def get_task_by_id(task_id: UUID, user_id: UUID) -> Optional[Task]:
     """
     Fetch a task by id.
     - Return task if it exists
     - Return None otherwise
     """
-    return tasks.get(str(task_id))
+    task = tasks.get(str(task_id))
+    if not task:
+        return None
+    if task.owner_id != user_id:
+        return None
+    return task
 
 
-def list_tasks() -> List[Task]:
+def list_tasks(user_id: UUID) -> List[Task]:
     """
-    List all tasks.
-    - Not user specific. All in-memory tasks are returned as a list
+    List all of the authenticated user's tasks.
+    - Specific to user. Lists all tasks created by the authenticated user
     """
-    return list(tasks.values())
+    user_tasks = list()
+    for task in tasks.values():
+        if task.owner_id == user_id:
+            user_tasks.append(task)
+    return user_tasks
 
 
-def update_task(task_id: UUID, data: TaskUpdate) -> Optional[Task]:
+def update_task(task_id: UUID, data: TaskUpdate, user_id: UUID) -> Optional[Task]:
     """
     Update an existing task.
     - Fetch task by id
@@ -61,7 +72,7 @@ def update_task(task_id: UUID, data: TaskUpdate) -> Optional[Task]:
     - Update task
     - Return task
     """
-    task = tasks.get(str(task_id))
+    task = get_task_by_id(task_id, user_id)
     if not task:
         return None
     
@@ -78,23 +89,27 @@ def update_task(task_id: UUID, data: TaskUpdate) -> Optional[Task]:
     if data.status is not None:
         task.status = data.status
         changed = True
+    
+    if data.due_date is not None:
+        task.due_date = data.due_date
+        changed = True
 
     if changed:
         task.updated_at = datetime.now(timezone.utc)
     return task
 
 
-def delete_task(task_id: UUID) -> bool:
+def delete_task(task_id: UUID, user_id: UUID) -> bool:
     """
     Delete a task.
     - Delete task and return True
-    - If no task matching id exists, return False
+    - If no task matching id exists or if task does not belong to user, return False
     """
-    task_id_str = str(task_id)
-    if task_id_str in tasks:
-        del tasks[task_id_str]
-        return True
-    return False
+    task = get_task_by_id(task_id, user_id)
+    if not task:
+        return False
+    del tasks[str(task_id)]
+    return True
 
 
 
