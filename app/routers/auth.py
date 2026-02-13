@@ -2,6 +2,11 @@ from fastapi import APIRouter, HTTPException, status
 from app.models.user import UserCreate, UserPublic
 from app.auth.security import hash_password
 from app.storage.in_memory import create_user
+from app.models.auth import LoginRequest, TokenResponse
+from app.auth.security import verify_password
+from app.auth.jwt import create_access_token
+from app.storage.in_memory import get_user_by_email
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,3 +41,28 @@ def register_endpoint(data: UserCreate):
 
     logger.info("User registered id=%s email=%s created at: %s", user.id, user.email, user.created_at.__str__())
     return UserPublic(id=user.id, email=user.email, created_at=user.created_at)
+
+
+
+@router.post("/login", response_model=TokenResponse)
+def login_endpoint(data: LoginRequest):
+    """
+    Login.
+    - Verify email + password
+    - Return JWT access token
+    """
+    logger.info("Login attempt email=%s", data.email)
+    user = get_user_by_email(data.email)
+    if not user:
+        logger.warning("Login failed (Invalid credentials)")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    if not verify_password(data.password, user.password_hash):
+        logger.warning("Login failed (Invalid credentials)")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    logger.info("Login successful.")
+    token = create_access_token(user_id=str(user.id))
+    return TokenResponse(access_token=token)
+
+
