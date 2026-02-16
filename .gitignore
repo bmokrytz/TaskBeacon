@@ -16,3 +16,6 @@ __pycache__/
 
 # FastAPI / Uvicorn reload
 *.reload
+
+# Database
+.env
