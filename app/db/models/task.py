@@ -13,7 +13,7 @@ class Task(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-
+    
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str | None] = mapped_column(String, nullable=True)
     status: Mapped[str] = mapped_column(String(50), nullable=False, server_default="pending")
