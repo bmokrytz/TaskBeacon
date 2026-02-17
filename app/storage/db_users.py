@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from app.db.models.user import User as UserORM
 
 
-def create_user_db(db: Session, *, email: str, password_hash: str) -> UserORM:
+def create_user(db: Session, *, email: str, password_hash: str) -> UserORM:
     user_email = email
     user = UserORM(email=user_email, password_hash=password_hash)
 
@@ -20,10 +20,10 @@ def create_user_db(db: Session, *, email: str, password_hash: str) -> UserORM:
     return user
 
 
-def get_user_by_id_db(db: Session, user_id: UUID) -> UserORM | None:
+def get_user_by_id(db: Session, user_id: UUID) -> UserORM | None:
     return db.get(UserORM, user_id)
 
 
-def get_user_by_email_db(db: Session, email: str) -> UserORM | None:
+def get_user_by_email(db: Session, email: str) -> UserORM | None:
     user_email = email.strip().lower()
     return db.query(UserORM).filter(UserORM.email == user_email).first()

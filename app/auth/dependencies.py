@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.jwt import get_token_subject
 from app.db.session import get_db
-from app.storage.db_users import get_user_by_id_db
+from app.storage.db_users import get_user_by_id
 
 bearer_scheme = HTTPBearer()
 
@@ -33,7 +33,7 @@ def get_current_user(
     except (JWTError, ValueError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token")
 
-    user = get_user_by_id_db(db, user_id)
+    user = get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token")
 

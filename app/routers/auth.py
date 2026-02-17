@@ -6,7 +6,7 @@ from app.auth.security import verify_password
 from app.auth.jwt import create_access_token
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.storage.db_users import create_user_db, get_user_by_email_db
+from app.storage.db_users import create_user, get_user_by_email
 
 from app.auth.dependencies import get_current_user
 
@@ -30,7 +30,7 @@ def register_endpoint(data: UserCreate, db: Session = Depends(get_db)):
     password_hash = hash_password(data.password)
 
     try:
-        user = create_user_db(db, email=email, password_hash=password_hash)
+        user = create_user(db, email=email, password_hash=password_hash)
     except ValueError as e:
         if "email already in use" in str(e).lower():
             logger.warning("Register failed (email in use) email=%s", email)
@@ -50,7 +50,7 @@ def login_endpoint(data: LoginRequest, db: Session = Depends(get_db)):
     """
     logger.info("Login attempt email=%s", data.email)
 
-    user = get_user_by_email_db(db, data.email)
+    user = get_user_by_email(db, email=data.email)
     if not user:
         logger.warning("Login failed (Invalid credentials)")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
@@ -65,16 +65,9 @@ def login_endpoint(data: LoginRequest, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=UserPublic)
 def me_endpoint(current_user = Depends(get_current_user)) -> UserPublic:
-    return UserPublic(id=current_user.id, email=current_user.email, created_at=current_user.created_at)
-
-
-"""
-@router.get("/me", response_model=UserPublic)
-def me_endpoint(current_user = Depends(get_current_user)) -> UserPublic:
-    """"""
+    """
     Get user info for logged in user.
     - Verify user exists
     - Return UserPublic
-    """"""
+    """
     return UserPublic(id=current_user.id, email=current_user.email, created_at=current_user.created_at)
-"""

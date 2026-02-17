@@ -121,8 +121,8 @@ class TaskPublic(BaseModel):
     description: Optional[str] = Field(None, max_length=400)
     status: TaskStatus = TaskStatus.pending
     due_date: Optional[datetime] = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     @field_validator("title")
     @classmethod
