@@ -1,11 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.models.user import User, UserCreate, UserPublic
 from app.auth.security import hash_password
-from app.storage.in_memory import create_user
 from app.models.auth import LoginRequest, TokenResponse
 from app.auth.security import verify_password
 from app.auth.jwt import create_access_token
-from app.storage.in_memory import get_user_by_email
+from sqlalchemy.orm import Session
+from app.db.session import get_db
+from app.storage.db_users import create_user_db, get_user_by_email_db
+
 from app.auth.dependencies import get_current_user
 
 import logging
@@ -15,45 +17,40 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserPublic)
-def register_endpoint(data: UserCreate):
+def register_endpoint(data: UserCreate, db: Session = Depends(get_db)):
     """
     Register a new user.
     - Hash password
     - Store user (unique email enforced)
     - Return public user info (no password hash)
     """
-    email = data.email  # already normalized by validator
+    email = data.email
     logger.info("Register attempt email=%s", email)
 
     password_hash = hash_password(data.password)
 
     try:
-        user = create_user(email=email, password_hash=password_hash)
+        user = create_user_db(db, email=email, password_hash=password_hash)
     except ValueError as e:
-        # Storage raises ValueError("email already in use")
         if "email already in use" in str(e).lower():
             logger.warning("Register failed (email in use) email=%s", email)
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email already in use",
-            )
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already in use")
         logger.exception("Register failed (unexpected) email=%s", email)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    logger.info("User registered id=%s email=%s created at: %s", user.id, user.email, user.created_at.__str__())
     return UserPublic(id=user.id, email=user.email, created_at=user.created_at)
 
 
-
 @router.post("/login", response_model=TokenResponse)
-def login_endpoint(data: LoginRequest):
+def login_endpoint(data: LoginRequest, db: Session = Depends(get_db)):
     """
     Login.
     - Verify email + password
     - Return JWT access token
     """
     logger.info("Login attempt email=%s", data.email)
-    user = get_user_by_email(data.email)
+
+    user = get_user_by_email_db(db, data.email)
     if not user:
         logger.warning("Login failed (Invalid credentials)")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
@@ -62,16 +59,22 @@ def login_endpoint(data: LoginRequest):
         logger.warning("Login failed (Invalid credentials)")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    logger.info("Login successful.")
     token = create_access_token(user_id=str(user.id))
     return TokenResponse(access_token=token)
 
 
-@router.get("/auth/me", response_model=UserPublic)
-def me_endpoint(current_user: User = Depends(get_current_user)) -> UserPublic:
-    """
+@router.get("/me", response_model=UserPublic)
+def me_endpoint(current_user = Depends(get_current_user)) -> UserPublic:
+    return UserPublic(id=current_user.id, email=current_user.email, created_at=current_user.created_at)
+
+
+"""
+@router.get("/me", response_model=UserPublic)
+def me_endpoint(current_user = Depends(get_current_user)) -> UserPublic:
+    """"""
     Get user info for logged in user.
     - Verify user exists
     - Return UserPublic
-    """
+    """"""
     return UserPublic(id=current_user.id, email=current_user.email, created_at=current_user.created_at)
+"""
