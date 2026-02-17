@@ -32,6 +32,8 @@ if config.config_file_name is not None:
 from app.db.base import Base
 target_metadata = Base.metadata
 
+import app.db.models_import
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
