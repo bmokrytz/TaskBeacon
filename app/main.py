@@ -47,6 +47,10 @@ def create_app() -> FastAPI:
     # Error handling
     from app.core.errors import register_exception_handlers
     register_exception_handlers(app)
+    
+    # Request logging 
+    from app.middleware.request_logging import RequestLoggingMiddleware
+    app.add_middleware(RequestLoggingMiddleware)
 
     # Routers
     app.include_router(health_endpoint_router)

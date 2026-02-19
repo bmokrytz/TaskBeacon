@@ -6,10 +6,12 @@ from fastapi.exceptions import RequestValidationError
 logger = logging.getLogger(__name__)
 
 
-def _payload(error: str, message: str, details=None) -> dict:
+def _payload(error: str, message: str, details=None, request_id: str | None = None) -> dict:
     data = {"error": error, "message": message}
     if details is not None:
         data["details"] = details
+    if request_id:
+        data["request_id"] = request_id
     return data
 
 
