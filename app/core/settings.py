@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Literal
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import logging
 
 
 class Settings(BaseSettings):
@@ -13,8 +14,9 @@ class Settings(BaseSettings):
     )
 
     # Environment
-    ENV: str = Field(default="dev")
-    LOG_LEVEL: str = Field(default="INFO")
+    ENV: Literal["DEV", "PROD"] = "DEV"
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    
 
     # Database
     DATABASE_URL: str  # required
@@ -28,6 +30,13 @@ class Settings(BaseSettings):
     # Web
     CORS_ORIGINS: List[str] = Field(default_factory=lambda: ["http://localhost:3000"])
     ALLOWED_HOSTS: List[str] = Field(default_factory=lambda: ["localhost", "127.0.0.1"])
+    
+    def get_log_level(self) -> int:
+        """
+        Convert Settings.LOG_LEVEL string to logging module constant.
+        Falls back to logging.INFO if invalid.
+        """
+        return getattr(logging, self.LOG_LEVEL.upper(), logging.INFO)
 
 
 _settings: Settings | None = None
