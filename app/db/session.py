@@ -6,6 +6,9 @@ DATABASE_URL = get_database_url()
 
 engine = create_engine(
     DATABASE_URL,
+    connect_args={
+        "options": "-c statement_timeout=3000"   # 3 seconds timeout
+    },
     pool_pre_ping=True,  # helps avoid stale connections
 )
 

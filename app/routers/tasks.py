@@ -1,31 +1,46 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from app.models.task import TaskPublic, TaskCreate, TaskUpdate
-from app.models.user import User
-from app.db.session import Session, get_db
+from sqlalchemy.orm import Session
 from app.auth.dependencies import get_current_user
-from app.storage.db_tasks import create_task, list_tasks, get_task_by_id, update_task, delete_task
 from uuid import UUID
 import logging
+
+from app.models.task import TaskPublic, TaskCreate, TaskUpdate, TaskStatus
+from app.models.user import User
+from app.db.session import get_db
+from app.storage.db_tasks import create_task, list_tasks, get_task_by_id, update_task, delete_task
+from app.api.serializers import task_orm_to_public
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
+
+
 @router.get("", response_model=list[TaskPublic])
-def list_tasks_endpoint(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def list_tasks_endpoint(
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+    ) ->list[TaskPublic]:
     """
     Task listing endpoint.
-    - Call task listing method
-    - Return task list
+    - Retrieve list of all tasks from database (specific to authenticated user)
+    - Serialize to TaskPublic and return
     """
+    task_list_public = list()
     logger.info("Fetching tasks for user_id=%s", str(current_user.id))
-    return list_tasks(db, user_id=current_user.id)
+    task_list = list_tasks(db, user_id=current_user.id)
+    for task in task_list:
+        public = task_orm_to_public(task)
+        task_list_public.append(public)
+    return task_list_public
+
+
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=TaskPublic)
 def create_task_endpoint(
     data: TaskCreate, 
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
-    ):
+    ) -> TaskPublic:
     """
     Create new task endpoint.
     - Call task creation method
@@ -37,18 +52,21 @@ def create_task_endpoint(
         owner_id=current_user.id,
         title=data.title, 
         description=data.description,
-        status=data.status,
+        status=data.status.value,
         due_date=data.due_date
         )
     logger.info("Task created. id=%s", str(task.id))
-    return task
+    task_public = task_orm_to_public(task)
+    return task_public
+
+
 
 @router.get("/{task_id}", response_model=TaskPublic)
 def get_task_by_id_endpoint(
     task_id: UUID, 
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
-    ):
+    ) -> TaskPublic:
     """
     Fetch a task by id endpoint.
     - Call task getter method
@@ -63,7 +81,9 @@ def get_task_by_id_endpoint(
     if not task:
         logger.warning("Task not found id=%s", str(task_id))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
-    return task
+    task_public = task_orm_to_public(task)
+    return task_public
+
 
 
 @router.patch("/{task_id}", response_model=TaskPublic)
@@ -72,7 +92,7 @@ def update_task_endpoint(
     data: TaskUpdate, 
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
-    ):
+    ) -> TaskPublic:
     """
     Update an existing task endpoint.
     - Call task update endpoint
@@ -90,11 +110,17 @@ def update_task_endpoint(
         logger.warning("Task not found for update id=%s", str(task_id))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
     logger.info("Task updated id=%s", str(task_id))
-    return task
+    task_public = task_orm_to_public(task)
+    return task_public
+
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task_endpoint(task_id: UUID, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def delete_task_endpoint(
+    task_id: UUID, 
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+    ):
     """
     Delete a task endpoint.
     - Call task deletion method

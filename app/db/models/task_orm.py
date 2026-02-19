@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 
-class Task(Base):
+class TaskORM(Base):
     __tablename__ = "tasks"
 
     id: Mapped[str] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -26,7 +26,7 @@ class Task(Base):
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now())
 
-    owner = relationship("User", back_populates="tasks")
+    owner = relationship("UserORM", back_populates="tasks")
 
 
-Index("ix_tasks_owner_id", Task.owner_id)
+Index("ix_tasks_owner_id", TaskORM.owner_id)

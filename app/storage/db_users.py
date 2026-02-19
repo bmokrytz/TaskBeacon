@@ -1,13 +1,27 @@
 from uuid import UUID
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from typing import List
+import logging
 
-from app.db.models.user import User as UserORM
+from app.db.models.user_orm import UserORM
+
+
+logger = logging.getLogger(__name__)
+
+
+def list_users(db: Session) -> List[UserORM]:
+    query = select(UserORM)
+    result = db.execute(query)
+    return result.scalars().all()
 
 
 def create_user(db: Session, *, email: str, password_hash: str) -> UserORM:
-    user_email = email
-    user = UserORM(email=user_email, password_hash=password_hash)
+    user = UserORM(
+        email=email,
+        password_hash=password_hash
+    )
 
     db.add(user)
     try:
