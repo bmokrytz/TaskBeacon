@@ -43,6 +43,10 @@ def create_app() -> FastAPI:
         redoc_url=redoc_url,
         openapi_url=openapi_url,
     )
+    
+    # Error handling
+    from app.core.errors import register_exception_handlers
+    register_exception_handlers(app)
 
     # Routers
     app.include_router(health_endpoint_router)

@@ -45,7 +45,8 @@ Tokens are issued by the `/auth/login` endpoint after successful authentication.
   ```json
   {
     "error": "short_error_code",
-    "message": "human-readable description"
+    "message": "human-readable description",
+    "details": null
   }
   ```
 
