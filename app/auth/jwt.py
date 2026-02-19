@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt
 
-# Move to env var later
-SECRET_KEY = "change-me"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+from app.core.settings import get_settings
+
+settings = get_settings()
+SECRET_KEY = settings.JWT_SECRET
+ALGORITHM = settings.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 def create_access_token(*, user_id: str) -> str:

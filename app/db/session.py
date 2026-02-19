@@ -1,13 +1,17 @@
+from collections.abc import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from app.core.config import get_database_url
 
-DATABASE_URL = get_database_url()
+from app.core.settings import get_settings
+
+settings = get_settings()
+DATABASE_URL = settings.DATABASE_URL
+DB_SESSION_TIMEOUT_MS = settings.DB_SESSION_TIMEOUT_MS
 
 engine = create_engine(
     DATABASE_URL,
     connect_args={
-        "options": "-c statement_timeout=3000"   # 3 seconds timeout
+        "options": "-c statement_timeout={DB_SESSION_TIMEOUT}"
     },
     pool_pre_ping=True,  # helps avoid stale connections
 )
@@ -18,7 +22,7 @@ SessionLocal = sessionmaker(
     autoflush=False,
 )
 
-def get_db():
+def get_db() -> Generator[Session, None, None]:
     """
     FastAPI dependency.
     Creates a DB session per request and always closes it.
