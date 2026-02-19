@@ -2,9 +2,7 @@
 .vscode/
 
 # Personal notes
-workflow.txt
-taskbeacon-folder-struct.html
-milestones.docx
+dev-notes/
 
 # Python
 .venv/
