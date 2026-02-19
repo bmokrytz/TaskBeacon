@@ -20,10 +20,11 @@ with authentication, persistent storage, and cloud deployment.
 ```mermaid
 flowchart LR
     Client[API Client / Swagger UI / Postman] --> API[FastAPI Service]
-    API --> Storage[In-Memory Task Store]
-
+    API --> DB[(PostgreSQL Database)]
 ```
-> Note: Future milestones will introduce authentication, rate limiting, and a Postgres database.  
+> Note: TaskBeacon currently uses PostgreSQL for persistent storage.
+Future milestones will introduce rate limiting and production deployment.
+
 > See `docs/architecture.md` for the planned production architecture.
 
 
@@ -37,6 +38,19 @@ For more detail, see:
 
 ## Local Development
 ### Local run instructions for TaskBeacon (v0.1.0):
+#### Prerequisites
+The following must be installed before running TaskBeacon locally:
+
+- Python 3.11+
+- Docker Desktop (with Docker Compose enabled)
+
+Verify Docker is installed:
+
+```bash
+docker --version
+docker compose version
+```
+
 #### Create a Python virtual environment and install dependencies
 1. Open a terminal in the project root directory
 2. In your terminal, enter `python -m venv .venv`. This will create the python virtual environment in folder `.venv/`
@@ -55,6 +69,50 @@ Your terminal should now look something like this:
 (.venv) PS C:\PathToTaskBeacon\TaskBeacon>
 ```
 4. With the python virtual environment activated, install the project dependencies outlined in requirements.txt with `pip install -r requirements.txt`
+
+#### Database Setup (PostgreSQL + Alembic)
+TaskBeacon uses PostgreSQL for persistent storage and Alembic for schema migrations. The database runs locally via Docker.
+
+**1. Start the database (PostgreSQL) container**
+
+From project root:
+```bash
+docker compose up -d
+```
+  This starts the database using the configuration in docker-compose.yml.
+
+**2. Configure environment variables (optional)**
+
+Environment variables are located in the .env file. Make sure that the configuration in docker-compose.yml matches environment variables.
+
+**3. Apply database migrations**
+
+After starting the database, run:
+```bash
+alembic upgrade head
+```
+This will automatically create and setup the full TaskBeacon database schema. If successful, you should see:
+
+```bash
+Running upgrade -> <revision>, create users and tasks
+```
+
+**4. Verify database is working**
+
+Start the API by following the "Running TaskBeacon" instructions below. Then use the `db-ping` endpoint to verify the database is working. If successful, you should see:
+```json
+{"status": "ok"}
+```
+
+**5. Resetting the databse**
+
+Resetting the database will delete all saved data. To do so, from project root:
+```bash
+docker compose down -v
+docker compose up -d
+alembic upgrade head
+```
+
 
 #### Running TaskBeacon
 1. Ensure that the virtual environment is activated
