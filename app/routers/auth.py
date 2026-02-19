@@ -1,23 +1,45 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from app.models.user import User, UserCreate, UserPublic
+from sqlalchemy.orm import Session
+from typing import List
+import logging
+
+from app.models.user import UserCreate, UserPublic
+from app.db.models.user_orm import UserORM
 from app.auth.security import hash_password
 from app.models.auth import LoginRequest, TokenResponse
 from app.auth.security import verify_password
 from app.auth.jwt import create_access_token
-from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.storage.db_users import create_user, get_user_by_email
-
+from app.storage.db_users import create_user, get_user_by_email, list_users
 from app.auth.dependencies import get_current_user
+from app.api.serializers import user_orm_to_public
 
-import logging
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+
+# For debugging/dev only. Remove later.
+@router.get("/list-all-users", response_model=List[UserPublic])
+def list_users_endpoint(db: Session = Depends(get_db), current_user = Depends(get_current_user)) -> List[UserPublic]:
+    """
+    List all registered users.
+    - Retrieve list of all users from database
+    - Serialize to UserPublic and return
+    """
+    user_list_public = list()
+    logger.info("Fetching all registered users.")
+    user_list = list_users(db)
+    for user in user_list:
+        public = user_orm_to_public(user)
+        user_list_public.append(public)
+    return user_list_public
+
+
+
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserPublic)
-def register_endpoint(data: UserCreate, db: Session = Depends(get_db)):
+def register_endpoint(data: UserCreate, db: Session = Depends(get_db)) -> UserPublic:
     """
     Register a new user.
     - Hash password
@@ -38,11 +60,13 @@ def register_endpoint(data: UserCreate, db: Session = Depends(get_db)):
         logger.exception("Register failed (unexpected) email=%s", email)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    return UserPublic(id=user.id, email=user.email, created_at=user.created_at)
+    user_public = user_orm_to_public(user)
+    return user_public
+
 
 
 @router.post("/login", response_model=TokenResponse)
-def login_endpoint(data: LoginRequest, db: Session = Depends(get_db)):
+def login_endpoint(data: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
     """
     Login.
     - Verify email + password
@@ -63,6 +87,7 @@ def login_endpoint(data: LoginRequest, db: Session = Depends(get_db)):
     return TokenResponse(access_token=token)
 
 
+
 @router.get("/me", response_model=UserPublic)
 def me_endpoint(current_user = Depends(get_current_user)) -> UserPublic:
     """
@@ -70,4 +95,6 @@ def me_endpoint(current_user = Depends(get_current_user)) -> UserPublic:
     - Verify user exists
     - Return UserPublic
     """
-    return UserPublic(id=current_user.id, email=current_user.email, created_at=current_user.created_at)
+    public = user_orm_to_public(current_user)
+    return public
+

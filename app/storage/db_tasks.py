@@ -1,18 +1,20 @@
-from uuid import UUID, uuid4
+from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from datetime import datetime
+import logging
 
 from app.models.task import TaskUpdate, TaskStatus
-from app.db.models.task import Task as TaskORM
+from app.db.models.task_orm import TaskORM
+
+logger = logging.getLogger(__name__)
 
 def list_tasks(db: Session, user_id: UUID) -> List[TaskORM]:
     query = select(TaskORM).where(TaskORM.owner_id == user_id)
     result = db.execute(query)
-    result = result.scalars().all()
-    return result
+    return result.scalars().all()
 
 def create_task(
     db: Session, 
@@ -29,13 +31,12 @@ def create_task(
     - Store task in database
     - Return task
     """
-    task_id = uuid4()
     
     task = TaskORM(
         owner_id=owner_id, 
         title=title,
         description=description,
-        status=status,
+        status=TaskStatus(status),
         due_date=due_date
         )
     

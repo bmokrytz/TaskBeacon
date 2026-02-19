@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 
-class User(Base):
+class UserORM(Base):
     __tablename__ = "users"
 
     id: Mapped[str] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -15,7 +15,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    tasks = relationship("Task", back_populates="owner", cascade="all, delete-orphan")
+    tasks = relationship("TaskORM", back_populates="owner", cascade="all, delete-orphan")
 
 
-Index("ix_users_email", User.email)
+Index("ix_users_email", UserORM.email)
