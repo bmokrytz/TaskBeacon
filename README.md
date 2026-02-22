@@ -51,6 +51,8 @@ docker --version
 docker compose version
 ```
 
+---
+
 #### Create a Python virtual environment and install dependencies
 1. Open a terminal in the project root directory
 2. In your terminal, enter `python -m venv .venv`. This will create the python virtual environment in folder `.venv/`
@@ -69,6 +71,8 @@ Your terminal should now look something like this:
 (.venv) PS C:\PathToTaskBeacon\TaskBeacon>
 ```
 4. With the python virtual environment activated, install the project dependencies outlined in requirements.txt with `pip install -r requirements.txt`
+
+---
 
 #### Database Setup (PostgreSQL + Alembic)
 TaskBeacon uses PostgreSQL for persistent storage and Alembic for schema migrations. The database runs locally via Docker.
@@ -113,8 +117,10 @@ docker compose up -d
 alembic upgrade head
 ```
 
+---
 
-#### Running TaskBeacon
+#### Running TaskBeacon (dev mode)
+By default TaskBeacon will run in dev mode. For production mode, see "Running TaskBeacon (local prod mode)".
 1. Ensure that the virtual environment is activated
 2. Start the server with `uvicorn app.main:app --reload`. You should see something like this:
 ```terminal
@@ -126,6 +132,71 @@ INFO:     Application startup complete.
 4. Use Swagger UI to test the available API endpoints and manage tasks
 
 ---
+
+#### Running TaskBeacon (local prod mode)
+In production (PROD) mode, the app:
+- disables Swagger/OpenAPI docs
+- enforces TrustedHost middleware
+- enables stricter security behavior
+
+**1. Configure .env**
+
+- Copy or rename the example file and fill in real values:
+```bash
+cp .env.example .env
+```
+.env must define at least:
+- DATABASE_URL
+- JWT_SECRET
+- ENV=PROD
+- ALLOWED_HOSTS
+
+**Configuration**
+
+TaskBeacon is configured via environment variables loaded from `.env` in development.
+
+| Variable | Example | Meaning |
+| -------- | -------- | -------- |
+| `ENV` | `DEV`/`PROD` | Controls dev vs prod behavior (docs, TrustedHost enforcement, etc.) |
+| `LOG_LEVEL` | `INFO` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
+| `DATABASE_URL` | `postgresql+psycopg://...` | Postgres connection string |
+| `DB_STATEMENT_TIMEOUT_MS` | `5000` | Max time a SQL statement may run before Postgres cancels it |
+| `DB_CONNECT_TIMEOUT_S` | `2` | Max time allowed to establish a DB connection when DB is down/unreachable |
+| `DB_POOL_TIMEOUT_S` | `2` | Max time to wait for a pooled DB connection checkout |
+| `JWT_SECRET` | `REPLACE_WITH_RANDOM_SECRET` | Secret used to sign JWTs (must be strong in prod) |
+| `JWT_ALGORITHM` | `HS256` | JWT signing algorithm |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | JWT access token expiration |
+| `CORS_ORIGINS` | `["http://localhost:3000"]` | Allowed browser origins that may read API responses |
+| `ALLOWED_HOSTS` | `["localhost","127.0.0.1"]` | Allowed Host headers (TrustedHost). In prod, set to your real domain(s). |
+
+**Generating a strong JWT secret**
+
+```bash
+python3 -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Then copy the output into .env as `JWT_SECRET=key output`
+
+**JWT secret rotation**
+
+Safe rotation procedure:
+
+1. Generate a new secret
+2. Deploy the new secret by updating `JWT_SECRET` environment variable
+3. Restart TaskBeacon
+4. Expect that all clients must log in again as previously administered tokens will fail with 401
+
+**2. Start Postgres database docker container**
+
+- Follow the instructions for "Database Setup"
+
+**3. Run TaskBeacon**
+
+```bash
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2
+```
+
+
 
 ## Authentication (Swagger UI)
 
