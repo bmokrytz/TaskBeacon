@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str  # required
     DB_SESSION_TIMEOUT_MS: int = Field(default=5000) # 5 second timeout default
+    DB_CONNECT_TIMEOUT_S: int = 2   # timeout for trying to connect
+    DB_POOL_TIMEOUT_S: int = 2      # timeout for a pool connection checkout
 
     # JWT
     JWT_SECRET: str = Field(default="change-me")

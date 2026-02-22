@@ -1,26 +1,29 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from app.db.session import get_db
 import logging
 
-logger = logging.getLogger(__name__)
-router = APIRouter()
+from app.db.session import get_db
 
-@router.get("/health", tags=["health"])
-def health_endpoint():
-    """
-    API service health check.
-    - Returns 200 OK if service is running
-    """
-    logger.info("Sending Health Check")
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/health", tags=["health"])
+
+
+@router.get("/live")    # Check process/app is running
+def live():
     return {"status": "ok"}
 
-@router.get("/db-ping")
-def db_ping(db: Session = Depends(get_db)):
-    """
-    Database service health check.
-    - Returns 200 OK if service is running
-    """
-    db.execute(text("SELECT 1"))
+
+@router.get("/ready")   # Check services/dependencies are reachable (DB)
+def ready(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception:
+        logger.exception("Readiness check failed: DB unreachable")
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "not_ready"},
+        )
+
     return {"status": "ok"}
