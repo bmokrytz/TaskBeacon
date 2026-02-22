@@ -44,13 +44,38 @@ def create_app() -> FastAPI:
         openapi_url=openapi_url,
     )
     
-    # Error handling
-    from app.core.errors import register_exception_handlers
-    register_exception_handlers(app)
-    
     # Request logging 
     from app.middleware.request_logging import RequestLoggingMiddleware
     app.add_middleware(RequestLoggingMiddleware)
+    
+    # Security headers middleware
+    from app.middleware.security_headers import SecurityHeadersMiddleware
+    app.add_middleware(
+        SecurityHeadersMiddleware, 
+        enable_csp=(settings.ENV == "prod"),
+    )
+    
+    # CORS middleware
+    from fastapi.middleware.cors import CORSMiddleware
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=False,    # JWT in Authorization header -> cookies not needed
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    
+    # TrustedHost middleware
+    from starlette.middleware.trustedhost import TrustedHostMiddleware
+    if settings.ENV == "PROD":
+        app.add_middleware(
+            TrustedHostMiddleware,
+            allowed_hosts=settings.ALLOWED_HOSTS,
+        )
+    
+    # Error handling
+    from app.core.errors import register_exception_handlers
+    register_exception_handlers(app)
 
     # Routers
     app.include_router(health_endpoint_router)
