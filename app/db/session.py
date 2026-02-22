@@ -12,9 +12,11 @@ args_string = "-c statement_timeout=" + str(DB_SESSION_TIMEOUT_MS)
 engine = create_engine(
     DATABASE_URL,
     connect_args={
-        "options": args_string
+        "options": args_string,
+        "connect_timeout": settings.DB_CONNECT_TIMEOUT_S
     },
     pool_pre_ping=True,  # helps avoid stale connections
+    pool_timeout=settings.DB_POOL_TIMEOUT_S
 )
 
 SessionLocal = sessionmaker(
