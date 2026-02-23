@@ -167,7 +167,13 @@ TaskBeacon is configured via environment variables loaded from `.env` in develop
 | `JWT_ALGORITHM` | `HS256` | JWT signing algorithm |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | JWT access token expiration |
 | `CORS_ORIGINS` | `["http://localhost:3000"]` | Allowed browser origins that may read API responses |
-| `ALLOWED_HOSTS` | `["localhost","127.0.0.1"]` | Allowed Host headers (TrustedHost). In prod, set to your real domain(s). |
+| `ALLOWED_HOSTS` | `["localhost","127.0.0.1"]` | Allowed Host headers (TrustedHost). In prod, set to your real domain(s) |
+| `RATE_LIMIT_ENABLED` | `True` | Enable or disable rate limiting |
+| `RATE_LIMIT_DEFAULT` | `120/minute` | Global default rate limit (all endpoints) |
+| `RATE_LIMIT_AUTH_LOGIN` | `10/minute` | Login endpoint rate limit |
+| `RATE_LIMIT_AUTH_REGISTER` | `5/minute` | Register endpoint rate limit |
+| `RATE_LIMIT_AUTH_ME` | `60/minute` | Me endpoint rate limit |
+
 
 **Generating a strong JWT secret**
 
@@ -241,6 +247,49 @@ Once authorized, you can call protected task endpoints like:
 - DELETE /tasks/{task_id}
 
 If you call any /tasks endpoint without authorizing, the API returns 401 Unauthorized.
+
+---
+
+## Rate Limiting
+
+## Rate Limiting
+
+TaskBeacon includes built-in rate limiting to protect the service from abuse, accidental overload, and brute-force attacks.
+
+Rate limiting is enforced globally via middleware and can also be applied per-endpoint (e.g. authentication routes).
+a
+
+### Behavior
+
+When a client exceeds the allowed request rate, the API responds with:
+
+**HTTP 429 — Too Many Requests**
+
+Example response:
+
+```json
+{
+  "error": "rate_limited",
+  "message": "Too many requests",
+  "details": {
+    "retry_after": 42
+  },
+  "request_id": "..."
+}
+```
+
+#### How Limits are Applied
+- Authenticated requests (via JWT) are limited per user
+- Unauthenticated requests are limited per IP address
+- Rate limits are enforced before the endpoint executes
+
+#### Default Rate Limits (Configurable via env variables)
+
+| Scope | Default |
+| ---- | ---- |
+| Global default (all endpoints) | 120 requests / minute |
+| Login endpoint | 10 requests / minute |
+| Register endpoint | 5 requests / minute |
 
 ---
 
