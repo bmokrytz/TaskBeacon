@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
 from sqlalchemy.orm import Session
 from typing import List
 import logging
@@ -13,8 +13,10 @@ from app.db.session import get_db
 from app.storage.db_users import create_user, get_user_by_email, list_users
 from app.auth.dependencies import get_current_user
 from app.api.serializers import user_orm_to_public
+from app.core.rate_limit import limiter
+from app.core.settings import get_settings
 
-
+settings = get_settings()
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -22,7 +24,10 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 # For debugging/dev only. Remove later.
 @router.get("/list-all-users", response_model=List[UserPublic])
-def list_users_endpoint(db: Session = Depends(get_db), current_user = Depends(get_current_user)) -> List[UserPublic]:
+def list_users_endpoint(
+        db: Session = Depends(get_db), 
+        current_user = Depends(get_current_user)
+    ) -> List[UserPublic]:
     """
     List all registered users.
     - Retrieve list of all users from database
@@ -39,7 +44,12 @@ def list_users_endpoint(db: Session = Depends(get_db), current_user = Depends(ge
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserPublic)
-def register_endpoint(data: UserCreate, db: Session = Depends(get_db)) -> UserPublic:
+@limiter.limit(settings.RATE_LIMIT_AUTH_REGISTER)
+def register_endpoint(
+        request: Request,
+        data: UserCreate, 
+        db: Session = Depends(get_db)
+    ) -> UserPublic:
     """
     Register a new user.
     - Hash password
@@ -66,7 +76,12 @@ def register_endpoint(data: UserCreate, db: Session = Depends(get_db)) -> UserPu
 
 
 @router.post("/login", response_model=TokenResponse)
-def login_endpoint(data: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+@limiter.limit(settings.RATE_LIMIT_AUTH_LOGIN)
+def login_endpoint(
+        request: Request,
+        data: LoginRequest, 
+        db: Session = Depends(get_db)
+    ) -> TokenResponse:
     """
     Login.
     - Verify email + password
@@ -89,7 +104,11 @@ def login_endpoint(data: LoginRequest, db: Session = Depends(get_db)) -> TokenRe
 
 
 @router.get("/me", response_model=UserPublic)
-def me_endpoint(current_user = Depends(get_current_user)) -> UserPublic:
+@limiter.limit(settings.RATE_LIMIT_AUTH_ME)
+def me_endpoint(
+        request: Request,
+        current_user = Depends(get_current_user)
+    ) -> UserPublic:
     """
     Get user info for logged in user.
     - Verify user exists
