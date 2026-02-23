@@ -36,7 +36,10 @@ class Settings(BaseSettings):
     # Rate Limiting
     RATE_LIMIT_ENABLED: bool = Field(default=True)
     RATE_LIMIT_DEFAULT: str = Field(default="120/minute")
-    
+    RATE_LIMIT_AUTH_LOGIN: str = Field(default="10/minute")
+    RATE_LIMIT_AUTH_REGISTER: str = Field(default="5/minute")
+    RATE_LIMIT_AUTH_ME: str = Field(default="60/minute")
+
     def get_log_level(self) -> int:
         """
         Convert Settings.LOG_LEVEL string to logging module constant.
