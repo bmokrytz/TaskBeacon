@@ -76,6 +76,16 @@ def create_app() -> FastAPI:
     # Error handling
     from app.core.errors import register_exception_handlers
     register_exception_handlers(app)
+    
+    # Auth context middleware (sets request.state.user_id)
+    from app.middleware.auth_context import AuthContextMiddleware
+    app.add_middleware(AuthContextMiddleware)
+    
+    # Rate limiting middleware
+    from slowapi.middleware import SlowAPIMiddleware
+    from app.core.rate_limit import limiter
+    app.state.limiter = limiter
+    app.add_middleware(SlowAPIMiddleware)
 
     # Routers
     app.include_router(health_endpoint_router)

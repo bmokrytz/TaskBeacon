@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = Field(default_factory=lambda: ["http://localhost:3000"])
     ALLOWED_HOSTS: List[str] = Field(default_factory=lambda: ["localhost", "127.0.0.1"])
     
+    # Rate Limiting
+    RATE_LIMIT_ENABLED: bool = Field(default=True)
+    RATE_LIMIT_DEFAULT: str = Field(default="120/minute")
+    
     def get_log_level(self) -> int:
         """
         Convert Settings.LOG_LEVEL string to logging module constant.
