@@ -2,6 +2,7 @@ import logging
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from slowapi.errors import RateLimitExceeded
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,20 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "validation_error",
                 "Request validation failed",
                 details=exc.errors(),
+            ),
+        )
+        
+    @app.exception_handler(RateLimitExceeded)
+    def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+        # slowAPI middleware requires sync exception handler
+        request_id = getattr(request.state, "request_id", None)
+        return JSONResponse(
+            status_code=429,
+            content=_payload(
+                "rate_limited",
+                "Too many requests",
+                details={"retry_after": getattr(exc, "retry_after", None)},
+                request_id=request_id,
             ),
         )
 
