@@ -83,6 +83,7 @@ def create_app() -> FastAPI:
     
     # Rate limiting middleware
     from slowapi.middleware import SlowAPIMiddleware
+    from slowapi.errors import RateLimitExceeded
     from app.core.rate_limit import limiter
     app.state.limiter = limiter
     app.add_middleware(SlowAPIMiddleware)
