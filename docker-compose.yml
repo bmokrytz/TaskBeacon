@@ -1,14 +1,36 @@
 services:
   db:
     image: postgres:16
+    container_name: taskbeacon-db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: taskbeacon
+      POSTGRES_USER: taskbeacon
+      POSTGRES_PASSWORD: 3u8fKp9xT2mQ!
     ports:
       - "7001:5432"
     volumes:
-      - taskbeacon_pgdata:/var/lib/postgresql/data
+      - taskbeacon_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskbeacon -d taskbeacon"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    container_name: taskbeacon-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
 volumes:
-  taskbeacon_pgdata:
+  taskbeacon_db:
+
+
