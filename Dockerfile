@@ -23,6 +23,7 @@ COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini ./
 COPY scripts ./scripts
+RUN chmod +x /app/scripts/entrypoint.sh
 
 # Create non-root user
 RUN useradd -m appuser
@@ -31,4 +32,4 @@ USER appuser
 EXPOSE 8000
 
 # Prod-start (no reload)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/scripts/entrypoint.sh"]
