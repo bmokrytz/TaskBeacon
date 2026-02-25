@@ -70,7 +70,7 @@ def create_app() -> FastAPI:
     if settings.ENV == "PROD":
         app.add_middleware(
             TrustedHostMiddleware,
-            allowed_hosts=settings.ALLOWED_HOSTS,
+            allowed_hosts=settings.allowed_hosts_list(),
         )
     
     # Error handling

@@ -4,11 +4,14 @@ from typing import List, Literal
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import logging
+import os
 
 
 class Settings(BaseSettings):
+
+    # Dynamically decide whether to load .env
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=".env" if os.getenv("ENV", "DEV") == "DEV" else None,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -16,13 +19,12 @@ class Settings(BaseSettings):
     # Environment
     ENV: Literal["DEV", "PROD"] = "DEV"
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
-    
 
     # Database
-    DATABASE_URL: str  # required
-    DB_SESSION_TIMEOUT_MS: int = Field(default=5000) # 5 second timeout default
-    DB_CONNECT_TIMEOUT_S: int = 2   # timeout for trying to connect
-    DB_POOL_TIMEOUT_S: int = 2      # timeout for a pool connection checkout
+    DATABASE_URL: str
+    DB_SESSION_TIMEOUT_MS: int = Field(default=5000)
+    DB_CONNECT_TIMEOUT_S: int = 2
+    DB_POOL_TIMEOUT_S: int = 2
 
     # JWT
     JWT_SECRET: str = Field(default="change-me")
@@ -31,8 +33,8 @@ class Settings(BaseSettings):
 
     # Web
     CORS_ORIGINS: List[str] = Field(default_factory=lambda: ["http://localhost:3000"])
-    ALLOWED_HOSTS: List[str] = Field(default_factory=lambda: ["localhost", "127.0.0.1"])
-    
+    ALLOWED_HOSTS: str = Field(default="localhost,127.0.0.1")
+
     # Rate Limiting
     RATE_LIMIT_ENABLED: bool = Field(default=True)
     RATE_LIMIT_DEFAULT: str = Field(default="120/minute")
@@ -41,11 +43,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_AUTH_ME: str = Field(default="60/minute")
 
     def get_log_level(self) -> int:
-        """
-        Convert Settings.LOG_LEVEL string to logging module constant.
-        Falls back to logging.INFO if invalid.
-        """
         return getattr(logging, self.LOG_LEVEL.upper(), logging.INFO)
+    
+    def allowed_hosts_list(self) -> list[str]:
+        return [h.strip() for h in self.ALLOWED_HOSTS.split(",") if h.strip()]
 
 
 _settings: Settings | None = None
