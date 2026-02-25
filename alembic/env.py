@@ -11,8 +11,13 @@ load_dotenv()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+from alembic.config import Config
 import os
+
+# Disable alembic interpolation
+config = Config("alembic.ini")
+config.file_config._interpolation = None
+
 db_url = os.getenv("DATABASE_URL")
 if not db_url:
     raise RuntimeError("DATABASE_URL is not set (needed for Alembic)")
