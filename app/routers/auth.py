@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, status, Request
+from fastapi import APIRouter, HTTPException, Depends, status, Request, Response
 from sqlalchemy.orm import Session
 from typing import List
 import logging
@@ -10,7 +10,7 @@ from app.models.auth import LoginRequest, TokenResponse
 from app.auth.security import verify_password
 from app.auth.jwt import create_access_token
 from app.db.session import get_db
-from app.storage.db_users import create_user, get_user_by_email, list_users
+from app.storage.db_users import create_user, get_user_by_email
 from app.auth.dependencies import get_current_user
 from app.api.serializers import user_orm_to_public
 from app.core.rate_limit import limiter
@@ -22,31 +22,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 
-# For debugging/dev only. Remove later.
-@router.get("/list-all-users", response_model=List[UserPublic])
-def list_users_endpoint(
-        db: Session = Depends(get_db), 
-        current_user = Depends(get_current_user)
-    ) -> List[UserPublic]:
-    """
-    List all registered users.
-    - Retrieve list of all users from database
-    - Serialize to UserPublic and return
-    """
-    user_list_public = list()
-    logger.info("Fetching all registered users.")
-    user_list = list_users(db)
-    for user in user_list:
-        public = user_orm_to_public(user)
-        user_list_public.append(public)
-    return user_list_public
-
-
-
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserPublic)
 @limiter.limit(settings.RATE_LIMIT_AUTH_REGISTER)
 def register_endpoint(
         request: Request,
+        response: Response, # Need to include Response param for limiter override
         data: UserCreate, 
         db: Session = Depends(get_db)
     ) -> UserPublic:
@@ -79,6 +59,7 @@ def register_endpoint(
 @limiter.limit(settings.RATE_LIMIT_AUTH_LOGIN)
 def login_endpoint(
         request: Request,
+        response: Response, # Need to include Response param for limiter override
         data: LoginRequest, 
         db: Session = Depends(get_db)
     ) -> TokenResponse:
@@ -107,6 +88,7 @@ def login_endpoint(
 @limiter.limit(settings.RATE_LIMIT_AUTH_ME)
 def me_endpoint(
         request: Request,
+        response: Response, # Need to include Response param for limiter override
         current_user = Depends(get_current_user)
     ) -> UserPublic:
     """

@@ -11,12 +11,6 @@ from app.db.models.user_orm import UserORM
 logger = logging.getLogger(__name__)
 
 
-def list_users(db: Session) -> List[UserORM]:
-    query = select(UserORM)
-    result = db.execute(query)
-    return result.scalars().all()
-
-
 def create_user(db: Session, *, email: str, password_hash: str) -> UserORM:
     user = UserORM(
         email=email,
