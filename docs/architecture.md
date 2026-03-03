@@ -15,14 +15,40 @@ flowchart LR
     API --> DB[(Postgres Database)]
 ```
 
+## Request Lifecycle Diagram
+
+```mermaid
+flowchart LR
+
+    Client --> RequestID --> SecurityHeader --> CORS --> TrustedHost --> RateLimit
+
+    RateLimit --> Router
+
+    subgraph Processing
+        direction TB
+        Router --> Auth --> DB
+    end
+```
+
+### Request Lifecycle (Example)
+1. Client sends HTTP request
+2. Request-level middleware executes (logging, request ID, security headers)
+3. Rate limiting middleware checks request
+4. Router matches request to endpoint
+5. Route-level dependencies execute (e.g., JWT authentication)
+6. Request data is validated
+7. Business logic executes
+8. Database interaction occurs
+9. Response is returned
+
 ## Components
 
 ### Client
 Represents any HTTP client interacting with the service, such as:
-- Swagger UI (/docs)
+- TaskBeacon web frontend
+- Swagger UI (/docs, disabled in production)
 - Postman / Insomnia
 - curl
-- A future frontend or integration
 
 #### Responsibilities:
 - Send HTTP requests
@@ -48,12 +74,12 @@ The core backend application responsible for:
 ### Rate Limiter
 Applies request limits to protect the service from abuse and accidental overload.
 
-#### Planned scope:
+#### Scope:
 - Per-IP limits for unauthenticated endpoints
 - Per-user limits for authenticated endpoints
 - Stricter limits on authentication routes
 
-### Database (Postgres)
+### Database (PostgreSQL)
 Persistent storage for application data.
 #### Stores:
 - Users
@@ -63,19 +89,10 @@ Persistent storage for application data.
 - Support indexed lookups for task queries
 - Maintain referential relationships between users and tasks
 
-### Request Lifecycle (Example)
-1. Client sends HTTP request to the API
-2. Rate limiter checks whether the request is allowed
-3. JWT middleware validates the token (if the endpoint is protected)
-4. FastAPI route handler validates request data
-5. Business logic executes
-6. Database is queried or updated
-7. API returns a JSON response with an appropriate HTTP status code
-
-### Deployment Architecture (Planned)
-- Application runs in a Docker container
-- Postgres runs as a managed service or a separate container
-- Service is deployed to Render
+### Deployment Architecture
+- Application runs in a Docker container via AWS AppRunner
+- PostgreSQL runs as a managed service with AWS RDS
+- Service is deployed to AWS (AppRunner and RDS)
 - Configuration is provided via environment variables
 
 ### Design Goals

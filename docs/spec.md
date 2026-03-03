@@ -1,14 +1,12 @@
-# TaskBeacon — MVP Specification (v0)
+# TaskBeacon — Specification (v1)
 
 ## Goal
 Provide a small, production-minded backend service that allows authenticated users to manage personal tasks via a REST API. The project is designed to demonstrate API design, authentication, persistence, and basic service reliability patterns in a cloud-deployable system.
 
-## Non-Goals (for MVP)
-- No frontend UI
+## Non-Goals (for v1)
 - No real-time features (e.g., WebSockets, push notifications)
 - No role-based access control (single user role only)
 - No advanced search, analytics, or reporting
-- No multi-tenant or organization-level features
 
 ## Core Features
 - User registration and login
@@ -23,7 +21,7 @@ Provide a small, production-minded backend service that allows authenticated use
 TaskBeacon exposes a RESTful HTTP API that accepts and returns JSON.
 
 - Base URL (local): `http://localhost:8000`
-- Base URL (production): TBD (Render deployment)
+- Base URL (production): [AWS deployment](https://83k3zsw5gc.us-east-1.awsapprunner.com)
 - Content-Type: `application/json`
 
 ### Authentication Interface
@@ -38,7 +36,9 @@ Tokens are issued by the `/auth/login` endpoint after successful authentication.
     ```json
     {
     "error": "short_error_code",
-    "message": "human-readable description"
+    "message": "human-readable description",
+    "details": "Detailed error info",
+    "request_id": "abc123"
     }
 
 ## Entities
@@ -50,7 +50,7 @@ Tokens are issued by the `/auth/login` endpoint after successful authentication.
 
 ### Task
 - id (UUID)
-- user_id (FK → User.id)
+- owner_id (FK → users.id)
 - title
 - description (optional)
 - status (pending | completed)
@@ -58,19 +58,21 @@ Tokens are issued by the `/auth/login` endpoint after successful authentication.
 - created_at
 - updated_at
 
-## API Endpoints (Planned)
-- POST `/auth/register`
-- POST `/auth/login`
-- GET `/tasks`
-- POST `/tasks`
-- GET `/tasks/{id}`
-- PATCH `/tasks/{id}`
-- DELETE `/tasks/{id}`
-- GET `/health`
+## API Endpoints
+- GET `/api/health/live`
+- GET `/api/health/ready`
+- POST `/api/auth/register`
+- POST `/api/auth/login`
+- GET `/api/auth/me`
+- GET `/api/tasks`
+- POST `/api/tasks`
+- GET `/api/tasks/{id}`
+- PATCH `/api/tasks/{id}`
+- DELETE `/api/tasks/{id}`
 
 ## Success Criteria
-- Service runs locally via Docker Compose
+- Service locally via Docker Compose
 - Authenticated users can securely manage tasks via the API
 - API returns appropriate HTTP status codes and structured JSON errors
-- Service can be deployed to Render and accessed over the public internet
+- Service can be deployed to AWS and accessed over the public internet
 - Architecture and setup are documented in the README and `/docs`
