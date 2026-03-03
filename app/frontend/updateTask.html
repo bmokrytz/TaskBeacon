@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Beacon</title>
+</head>
+<body>
+    <div class="button_container">
+        <button id="back_btn" class="submit_button" >Back</button>
+    </div>
+    
+    <form id="update-task-form" action="/api/auth/register" method="POST">
+        <h1 id="tasks-root-title">Update task</h1>
+        
+        <div class="update-task-input-field">
+            <label for="title" class="update-task-form-label">Title:</label>
+            <input class="update-task-form-input" id="title" name="title">
+        </div>
+
+        <div class="update-task-input-field">
+            <label for="description" class="update-task-form-label">Description:</label>
+            <input class="update-task-form-input" id="description" name="description">
+        </div>
+
+        <div class="update-task-input-field">
+            <span class="update-task-form-label">Status:</span>
+
+            <label style="margin-left: 1cm; font-size: 20px;">
+                <input type="radio" id="pending" name="status" value="pending">
+                Pending
+            </label>
+
+            <label style="margin-left: 1cm; font-size: 20px;">
+                <input type="radio" id="completed" name="status" value="completed">
+                Completed
+            </label>
+        </div>
+
+        <div class="update-task-input-field">
+            <label for="due_date" class="update-task-form-label">Due date:</label>
+            <input type="datetime-local" class="update-task-form-input" id="due_date" name="due_date">
+        </div>
+
+        <button type="submit" class="submit_button">Submit</button>
+    </form>
+
+    <style>
+        .button_container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .submit_button {
+            padding: 10px 20px;
+            font-size: 20px;
+        }
+
+        #tasks-root-title {
+            font-size: 42px;
+            padding-bottom: 1cm;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1f2937;
+        }
+
+        .update-task-input-field {
+            margin-bottom: 5%;
+        }
+
+        .update-task-form-input {
+            width: 40%;
+        }
+
+        .update-task-form-label {
+            font-size: 1cm;
+        }
+
+        body {
+            background-color: #adb3c9;
+        }
+
+        #update-task-form-title {
+            font-size: 2cm;
+        }
+
+        #update-task-form {
+            width: 70%;
+            margin: 0 auto;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("update-task-form");
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+        alert("Not logged in");
+        window.location.href = "/";
+        return;
+        }
+
+        const back_btn = document.getElementById("back_btn");
+
+        back_btn.addEventListener("click", () => {
+            window.location.href = "/tasks.html";
+        });
+
+        const task_title = localStorage.getItem("task_title");
+        document.getElementById("title").value = task_title;
+        console.log(document.getElementById("title").value);
+        
+        const task_description = localStorage.getItem("task_description");
+        document.getElementById("description").value = task_description;
+        const task_status = localStorage.getItem("task_status");
+
+        if (!task_status) {
+        alert("Task status not found.");
+        window.location.href = "/tasks.html";
+        return;
+        }
+
+        if (task_status === "pending") {
+            document.getElementById("pending").checked = true;
+        }
+        else {
+            document.getElementById("completed").checked = true;
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById("title").value.trim();
+            const description = document.getElementById("description").value.trim();
+            const raw = document.getElementById("due_date").value;
+
+            let due_date = null;
+            if (raw !== "") {
+                due_date = datetimeLocalToUTCISOString(raw);
+            }
+
+            const status = document.querySelector('input[name="status"]:checked').value;
+            const payload = {};
+            if (title !== "") {
+                payload.title = title;
+            }
+            if (description !== "") {
+                payload.description = description;
+            }
+            if (status !== "") {
+                payload.status = status;
+            }
+            if (due_date !== null) {
+                payload.due_date = due_date;
+            }
+
+            const task_id = localStorage.getItem("task_id");
+            const res = await fetch(`/api/tasks/${task_id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+            const text = await res.text();
+            alert(`Task update failed`);
+            return;
+            }
+            localStorage.removeItem("task_id");
+            localStorage.removeItem("task_title");
+            localStorage.removeItem("task_description");
+            localStorage.removeItem("task_status");
+            window.location.href = "/tasks.html";
+        });
+        });
+
+        function datetimeLocalToUTCISOString(raw) {
+            // raw: "YYYY-MM-DDTHH:MM" or "YYYY-MM-DDTHH:MM:SS"
+            const [datePart, timePart] = raw.split("T");
+            const [y, m, d] = datePart.split("-").map(Number);
+            const [hh, mm, ss = "0"] = timePart.split(":");
+            const dt = new Date(y, m - 1, d, Number(hh), Number(mm), Number(ss)); // local time
+            return dt.toISOString(); // UTC with Z
+        }
+    </script>
+</body>
+</html>

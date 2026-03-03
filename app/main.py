@@ -1,5 +1,7 @@
 import logging
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 from app.core.settings import get_settings
 from app.routers.health import router as health_endpoint_router
@@ -13,6 +15,7 @@ tags_metadata = [
     {"name": "tasks", "description": "Task CRUD operations (requires authentication)."},
 ]
 
+FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 
 def create_app() -> FastAPI:
     """
@@ -92,9 +95,15 @@ def create_app() -> FastAPI:
     app.include_router(health_endpoint_router)
     app.include_router(tasks_endpoint_router)
     app.include_router(auth_endpoint_router)
+    
+    # Frontend static html files
+    #app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True, check_dir=True), name="frontend",)
+    #app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend",)
 
     logging.getLogger(__name__).info("TaskBeacon app created ENV=%s", settings.ENV)
     return app
 
 
 app = create_app()
+

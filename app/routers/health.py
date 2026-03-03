@@ -7,7 +7,7 @@ import logging
 from app.db.session import get_db
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/health", tags=["health"])
+router = APIRouter(prefix="/api/health", tags=["health"])
 
 
 @router.get("/live")    # Check process/app is running
