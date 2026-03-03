@@ -18,7 +18,16 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
 
         if self.enable_csp:
-            # Basic CSP. Tighten later when serving a frontend.
-            response.headers["Content-Security-Policy"] = "default-src 'self'"
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; "
+                "script-src 'self'; "
+                "style-src 'self'; "
+                "img-src 'self' data:; "
+                "connect-src 'self'; "
+                "object-src 'none'; "
+                "base-uri 'self'; "
+                "frame-ancestors 'none'; "
+                "form-action 'self'"
+            )
 
         return response
