@@ -1,16 +1,14 @@
 # TaskBeacon
 
-TaskBeacon is a backend task management API built with FastAPI.
-The project is being developed incrementally toward a production-ready system
-with authentication, persistent storage, and cloud deployment.
+TaskBeacon is a backend task management API built with FastAPI with authentication, persistent storage, and cloud deployment.
 
 ---
 
-## Features (MVP Scope)
+## Features
 - User registration and JWT-based authentication
 - Create, list, update, and delete personal tasks
 - Per-user task isolation
-- Health check endpoint for service monitoring
+- Health check endpoints for service and dependency monitoring
 - Dockerized local and cloud deployment workflow
 
 ---
@@ -20,24 +18,38 @@ with authentication, persistent storage, and cloud deployment.
 ```mermaid
 flowchart LR
     Client[API Client / Swagger UI / Postman] --> API[FastAPI Service]
-    API --> DB[(PostgreSQL Database)]
+    API --> Auth[JWT Middleware]
+    API --> RateLimit[Rate Limiter]
+    API --> DB[(Postgres Database)]
 ```
 > Note: TaskBeacon currently uses PostgreSQL for persistent storage.
-Future milestones will introduce rate limiting and production deployment.
 
-> See `docs/architecture.md` for the planned production architecture.
+> See `docs/architecture.md` for the production architecture.
 
+## Request Lifecycle Diagram
+
+```mermaid
+flowchart LR
+
+    Client --> RequestID --> SecurityHeader --> CORS --> TrustedHost --> RateLimit
+
+    RateLimit --> Router
+
+    subgraph Processing
+        direction TB
+        Router --> Auth --> DB
+    end
+```
 
 For more detail, see:
 - [Architecture](docs/architecture.md)
-- [MVP Spec](docs/spec.md)
-- [Design Decisions](docs/decisions.md)
+- [Spec](docs/spec.md)
 - [API Overview](docs/api.md)
 
 ---
 
 ## Local Development
-### Local run instructions for TaskBeacon (v0.1.0):
+### Local run instructions for TaskBeacon:
 #### Prerequisites
 The following must be installed before running TaskBeacon locally:
 
@@ -103,7 +115,7 @@ Running upgrade -> <revision>, create users and tasks
 
 **4. Verify database is working**
 
-Start the API by following the "Running TaskBeacon" instructions below. Then use the `db-ping` endpoint to verify the database is working. If successful, you should see:
+Start the API by following the "Running TaskBeacon" instructions below. Then use the `/api/health/ready` endpoint to verify the database is working. If successful, you should see:
 ```json
 {"status": "ok"}
 ```
@@ -252,12 +264,9 @@ If you call any /tasks endpoint without authorizing, the API returns 401 Unautho
 
 ## Rate Limiting
 
-## Rate Limiting
-
 TaskBeacon includes built-in rate limiting to protect the service from abuse, accidental overload, and brute-force attacks.
 
 Rate limiting is enforced globally via middleware and can also be applied per-endpoint (e.g. authentication routes).
-a
 
 ### Behavior
 
@@ -294,4 +303,4 @@ Example response:
 ---
 
 ## Status
-This project is under active development and is being built incrementally with defined milestones and documented design decisions.
+This project is considered complete and is in a deployable state. Future improvements may be considered at a later date.
