@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Beacon</title>
+</head>
+<body>
+    <div class="button_container">
+        <button id="register" class="submit_button" >Register</button>
+    </div>
+
+    <form id="login-form" action="/api/auth/login" method="POST">
+        <h2 id="login-form-title">Login</h2>
+        <div class="login-input-field">
+            <label for="email" class="login-form-label">Email:</label>
+            <input type="email" class="login-form-input" id="email" name="email" autocomplete="username" required>
+        </div>
+        <div class="login-input-field">
+            <label for="password" class="login-form-label">Password:</label>
+            <input type="password" class="login-form-input" id="password" name="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="submit_button">Submit</button>
+    </form>
+
+    <style>
+        .button_container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .submit_button {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 20px;
+            font-size: 20px;
+        }
+
+        .login-input-field {
+            margin-bottom: 5%;
+        }
+
+        .login-form-input {
+            width: 40%;
+        }
+
+        .login-form-label {
+            font-size: 1cm;
+        }
+
+        body {
+            background-color: #adb3c9;
+        }
+
+        #login-form-title {
+            font-size: 2cm;
+            color: #1f2937;
+        }
+
+        #login-form {
+            width: 70%;
+            margin: 0 auto;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("login-form");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("email").value.trim();
+            localStorage.setItem("login_email", email);
+            const password = document.getElementById("password").value;
+
+            const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+            });
+
+            if (!res.ok) {
+            const text = await res.text();
+            alert(`Login failed`);
+            localStorage.removeItem("login_email");
+            return;
+            }
+
+            const data = await res.json();
+            const token = data.access_token || data.token;
+            localStorage.setItem("token", token);
+
+            alert("Logged in!");
+            window.location.href = "/tasks.html";
+        });
+
+
+        const registerBtn = document.getElementById("register");
+
+        registerBtn.addEventListener("click", () => {
+
+            window.location.href = "/register.html";
+        });
+        });
+
+    </script>
+</body>
+</html>

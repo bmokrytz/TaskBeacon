@@ -18,7 +18,7 @@ from app.core.settings import get_settings
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 

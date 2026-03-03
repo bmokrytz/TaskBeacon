@@ -11,7 +11,7 @@ from app.storage.db_tasks import create_task, list_tasks, get_task_by_id, update
 from app.api.serializers import task_orm_to_public
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
 
 
