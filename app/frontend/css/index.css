@@ -1,0 +1,37 @@
+.button_container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.submit_button {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 20px;
+    font-size: 20px;
+}
+
+.login-input-field {
+    margin-bottom: 5%;
+}
+
+.login-form-input {
+    width: 40%;
+}
+
+.login-form-label {
+    font-size: 1cm;
+}
+
+body {
+    background-color: #adb3c9;
+}
+
+#login-form-title {
+    font-size: 2cm;
+    color: #1f2937;
+}
+
+#login-form {
+    width: 70%;
+    margin: 0 auto;
+}
