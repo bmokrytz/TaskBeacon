@@ -101,6 +101,6 @@ Write-Host ""
 Write-Host "====================================" -ForegroundColor Cyan
 Write-Host "  Deployment triggered successfully!" -ForegroundColor Cyan
 Write-Host "  Image : $ECR_IMAGE" -ForegroundColor Cyan
-Write-Host "  Check : AWS Console → App Runner → Logs" -ForegroundColor Cyan
+Write-Host "  Check : AWS Console -> App Runner -> Logs" -ForegroundColor Cyan
 Write-Host "====================================" -ForegroundColor Cyan
 Write-Host ""
