@@ -28,6 +28,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "/index.html";
     });
 
+    // Add task button
+    const add_btn = document.querySelector(".add_btn");
+
+    add_btn.addEventListener("click", () => {
+        window.location.href = "/addTask.html";
+    });
+
     // Fetch and render tasks
     await loadTasks();
 
