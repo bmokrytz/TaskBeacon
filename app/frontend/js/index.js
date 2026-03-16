@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    const API_BASE = "http://localhost:8000"; // <-- change this
-
     // Register button
     const register_btn = document.querySelector(".register_btn");
     register_btn.addEventListener("click", () => {
@@ -38,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         submit_btn.style.opacity = "0.7";
 
         try {
-            const res = await fetch(`${API_BASE}/api/auth/login`, {
+            const res = await fetch(`/api/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
@@ -51,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const data = await res.json();
-            const token = data.access_token || data.token;
+            const token = data.access_token;
 
             localStorage.setItem("token", token);
             localStorage.setItem("login_email", email);

@@ -7,6 +7,8 @@ body, html {
 .page {
     min-height: 100vh;
     background: #0f1117;
+    background-image: radial-gradient(circle, #2a2f3e 1px, transparent 1px);
+    background-size: 28px 28px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -14,28 +16,6 @@ body, html {
     font-family: 'Palatino Linotype', Palatino, serif;
     position: relative;
     overflow: hidden;
-}
-
-.blob1 {
-    position: fixed;
-    top: -150px;
-    right: -150px;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, #3b82f633 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-.blob2 {
-    position: fixed;
-    bottom: -150px;
-    left: -150px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, #0ea5e933 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
 }
 
 .top_bar {
