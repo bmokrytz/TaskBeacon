@@ -8,22 +8,57 @@
         <link rel="stylesheet" href="/static/css/register.css">
         <script src="/static/js/register.js" defer></script>
     </head>
-    <body>
-        <div class="button_container">
-            <button id="login_btn" class="submit_button" >Login</button>
-        </div>
 
-        <form id="register-form" action="/api/auth/register" method="POST">
-            <h2 id="register-form-title">Register</h2>
-            <div class="register-input-field">
-                <label for="email" class="register-form-label">Email:</label>
-                <input type="email" class="register-form-input" id="email" name="email" autocomplete="username" required>
+
+    <body>
+        <div class="page">
+
+            <!-- Decorations -->
+            <div class="blob1"></div>
+            <div class="blob2"></div>
+
+
+            <!-- Top Bar -->
+            <div class="top_bar">
+            <button class="home_btn">Home</button>
             </div>
-            <div class="register-input-field">
-                <label for="password" class="register-form-label">Password:</label>
-                <input type="password" class="register-form-input" id="password" name="password" autocomplete="current-password" required>
+
+
+            <!-- Login card container -->
+            <div class="card">
+
+                <div class="logo_area">
+                    <div class="logo_text">
+                        <h1 class="app_name">Create your account</h1>
+                    </div>
+                </div>
+                <div class="error_box"></div>
+
+                <!-- Login form -->
+                <form class="form">
+
+                    <div class="field_group">
+                        <label class="label">Email</label>
+                        <input class="input" id="email" type="email" placeholder="you@example.com" autocomplete="username" required />
+                    </div>
+                    <div class="field_group">
+                        <label class="label">Password</label>
+                        <input class="input" id="password" type="password" placeholder="••••••••" required />
+                    </div>
+                    <div class="field_group">
+                        <label class="label">Confirm password</label>
+                        <input class="input" id="confirm_password" type="password" placeholder="••••••••" required />
+                    </div>
+                    <button class="submit_btn">Login</button>
+
+                </form>
+
             </div>
-            <button type="submit" class="submit_button">Submit</button>
-        </form>
+            
+
+        </div>
+        
     </body>
+
+
 </html>

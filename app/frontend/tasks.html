@@ -8,16 +8,43 @@
         <link rel="stylesheet" href="/static/css/tasks.css">
         <script src="/static/js/tasks.js" defer></script>
     </head>
+
     <body>
-        <div class="button_container">
-            <h3 id="logged_in_as"></h3>
-            <button id="logout_btn" class="submit_button" >Logout</button>
-        </div>
-        <div id="tasks-root">
-            <h1 id="tasks-root-title">Your tasks</h1>
-            <div style="display: flex; justify-content: flex-end;">
-                <button id="add_task_btn" class="submit_button" >Add task</button>
+
+        <div class="page">
+
+            <!-- Decorations -->
+            <div class="blob1"></div>
+            <div class="blob2"></div>
+
+            <!-- Top Bar -->
+            <div class="top_bar">
+                <button class="logout_btn">Logout</button>
             </div>
+
+            <!-- Main container -->
+            <div class="container">
+
+                <div class="container_header">
+                    <h1 class="page_title">Tasks</h1>
+                    <button class="add_btn" onclick="window.location.href='/addTask.html'">+ Add Task</button>
+                </div>
+
+                <div class="error_box"></div>
+
+                <!-- Task list -->
+                <div class="task_list" id="task_list">
+                </div>
+
+                <!-- Shown when task list is empty -->
+                <div class="empty_state" id="empty_state" style="display: none;">
+                    <p class="empty_text">No tasks yet. Add one to get started.</p>
+                </div>
+
+            </div>
+
         </div>
+
     </body>
+
 </html>

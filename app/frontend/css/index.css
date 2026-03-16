@@ -1,37 +1,185 @@
-.button_container {
+body, html {
+    margin: 0;
+    padding: 0;
+    background: #0f1117;
+}
+
+.page {
+    min-height: 100vh;
+    background: #0f1117;
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Palatino Linotype', Palatino, serif;
+    position: relative;
+    overflow: hidden;
 }
 
-.submit_button {
+
+.logo_area {
     display: flex;
-    justify-content: flex-end;
-    padding: 10px 20px;
-    font-size: 20px;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
 }
 
-.login-input-field {
-    margin-bottom: 5%;
+.logo_text {
+    text-align: left;
 }
 
-.login-form-input {
-    width: 40%;
+
+.logo_icon {
+    font-size: 24px;
+    color: #3b82f6;
+    line-height: 2;
+    margin-bottom: 12px;
 }
 
-.login-form-label {
-    font-size: 1cm;
+
+.logo_card {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 10px 14px;
+    width: fit-content;
+    margin: 12px auto 0;
 }
 
-body {
-    background-color: #adb3c9;
+
+
+.card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 52px 48px;
+    width: 100%;
+    max-width: 440px;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(12px);
 }
 
-#login-form-title {
-    font-size: 2cm;
-    color: #1f2937;
+
+.blob1 {
+    position: fixed;
+    top: -150px; 
+    right: -150px;
+    width: 500px; 
+    height: 500px;
+    background: radial-gradient(circle, #3b82f633 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+
+.blob2 {
+    position: fixed;
+    bottom: -150px;
+    left: -150px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #0ea5e933 0%, transparent 70%);
+    border-radius: 50%;
 }
 
-#login-form {
-    width: 70%;
-    margin: 0 auto;
+
+.top_bar {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    z-index: 10;
+  }
+
+
+.register_btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #94a3b8;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.2s;
+}
+
+
+.app_name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+}
+
+
+.tagline {
+    font-size: 15px;
+    color: #64748b;
+    margin: 0;
+}
+
+
+.error_box {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #fca5a5;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+
+.field_group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+
+.label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+
+.input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 16px;
+    color: #f1f5f9;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+.submit_btn {
+    background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    margin-top: 8px;
+    transition: opacity 0.2s;
 }

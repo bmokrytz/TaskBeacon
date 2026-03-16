@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Task Beacon</title>
+
+        <link rel="stylesheet" href="/static/css/addTask.css">
+        <script src="/static/js/addTask.js" defer></script>
+    </head>
+    <body>
+        <div class="button_container">
+            <button id="back_btn" class="submit_button" >Back</button>
+        </div>
+
+        <form id="add-task-form" action="/api/auth/register" method="POST">
+            <h1 id="tasks-root-title">Add task</h1>
+            <div class="add-task-input-field">
+                <label for="title" class="add-task-form-label">Title:</label>
+                <input class="add-task-form-input" id="title" name="title" required>
+            </div>
+            <div class="add-task-input-field">
+                <label for="description" class="add-task-form-label">Description:</label>
+                <input class="add-task-form-input" id="description" name="description">
+            </div>
+            <div class="add-task-input-field">
+                <label for="due_date" class="add-task-form-label">Due date:</label>
+                <input type="datetime-local" class="add-task-form-input" id="due_date" name="due_date">
+            </div>
+            <button type="submit" class="submit_button">Submit</button>
+        </form>
+    </body>
+</html>

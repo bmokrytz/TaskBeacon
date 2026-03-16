@@ -1,0 +1,42 @@
+.button_container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.submit_button {
+    padding: 10px 20px;
+    font-size: 20px;
+}
+
+#tasks-root-title {
+    font-size: 42px;
+    padding-bottom: 1cm;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #1f2937;
+}
+
+.add-task-input-field {
+    margin-bottom: 5%;
+}
+
+.add-task-form-input {
+    width: 40%;
+}
+
+.add-task-form-label {
+    font-size: 1cm;
+}
+
+body {
+    background-color: #adb3c9;
+}
+
+#add-task-form-title {
+    font-size: 2cm;
+}
+
+#add-task-form {
+    width: 70%;
+    margin: 0 auto;
+}

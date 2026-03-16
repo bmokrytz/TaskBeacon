@@ -1,42 +1,163 @@
-.button_container {
+body, html {
+    margin: 0;
+    padding: 0;
+    background: #0f1117;
+}
+
+.page {
+    min-height: 100vh;
+    background: #0f1117;
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Palatino Linotype', Palatino, serif;
+    position: relative;
+    overflow: hidden;
 }
 
-.submit_button {
-    padding: 10px 20px;
-    font-size: 20px;
+.blob1 {
+    position: fixed;
+    top: -150px;
+    right: -150px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #3b82f633 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
-#tasks-root-title {
-    font-size: 42px;
-    padding-bottom: 1cm;
+.blob2 {
+    position: fixed;
+    bottom: -150px;
+    left: -150px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #0ea5e933 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.top_bar {
+    position: fixed;
+    top: 24px;
+    left: 32px;
+    z-index: 10;
+}
+
+.back_btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #94a3b8;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.2s;
+}
+
+.back_btn:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #f1f5f9;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 52px 48px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(12px);
+}
+
+.page_title {
+    font-size: 28px;
     font-weight: 700;
-    letter-spacing: -0.5px;
-    color: #1f2937;
+    color: #f1f5f9;
+    margin: 0 0 36px;
+    letter-spacing: -0.02em;
 }
 
-.add-task-input-field {
-    margin-bottom: 5%;
-}
-
-.add-task-form-input {
-    width: 40%;
-}
-
-.add-task-form-label {
-    font-size: 1cm;
-}
-
-body {
-    background-color: #adb3c9;
-}
-
-#add-task-form-title {
-    font-size: 2cm;
+.error_box {
+    display: none;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 24px;
+    text-align: center;
 }
 
 #add-task-form {
-    width: 70%;
-    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.field_group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 16px;
+    color: #f1f5f9;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.input:focus {
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Style the datetime-local calendar icon to match the dark theme */
+.input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6);
+    cursor: pointer;
+}
+
+.submit_btn {
+    background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+    font-family: inherit;
+}
+
+.submit_btn:hover {
+    opacity: 0.9;
+}
+
+.submit_btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

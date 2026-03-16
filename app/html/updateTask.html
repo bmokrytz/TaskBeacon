@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Task Beacon</title>
+
+        <link rel="stylesheet" href="/static/css/updateTask.css">
+        <script src="/static/js/updateTask.js" defer></script>
+    </head>
+    <body>
+        <div class="button_container">
+            <button id="back_btn" class="submit_button" >Back</button>
+        </div>
+        
+        <form id="update-task-form" action="/api/auth/register" method="POST">
+            <h1 id="tasks-root-title">Update task</h1>
+            
+            <div class="update-task-input-field">
+                <label for="title" class="update-task-form-label">Title:</label>
+                <input class="update-task-form-input" id="title" name="title">
+            </div>
+
+            <div class="update-task-input-field">
+                <label for="description" class="update-task-form-label">Description:</label>
+                <input class="update-task-form-input" id="description" name="description">
+            </div>
+
+            <div class="update-task-input-field">
+                <span class="update-task-form-label">Status:</span>
+
+                <label style="margin-left: 1cm; font-size: 20px;">
+                    <input type="radio" id="pending" name="status" value="pending">
+                    Pending
+                </label>
+
+                <label style="margin-left: 1cm; font-size: 20px;">
+                    <input type="radio" id="completed" name="status" value="completed">
+                    Completed
+                </label>
+            </div>
+
+            <div class="update-task-input-field">
+                <label for="due_date" class="update-task-form-label">Due date:</label>
+                <input type="datetime-local" class="update-task-form-input" id="due_date" name="due_date">
+            </div>
+
+            <button type="submit" class="submit_button">Submit</button>
+        </form>
+    </body>
+</html>

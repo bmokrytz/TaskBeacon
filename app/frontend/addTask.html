@@ -3,31 +3,54 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Task Beacon</title>
+        <title>Task Beacon - Add Task</title>
 
         <link rel="stylesheet" href="/static/css/addTask.css">
         <script src="/static/js/addTask.js" defer></script>
     </head>
     <body>
-        <div class="button_container">
-            <button id="back_btn" class="submit_button" >Back</button>
+
+        <div class="page">
+
+            <!-- Decorations -->
+            <div class="blob1"></div>
+            <div class="blob2"></div>
+
+            <!-- Top Bar -->
+            <div class="top_bar">
+                <button id="back_btn" class="back_btn">Back</button>
+            </div>
+
+            <!-- Card -->
+            <div class="card">
+
+                <h1 class="page_title">Add Task</h1>
+                <div class="error_box"></div>
+
+                <form id="add-task-form">
+
+                    <div class="field_group">
+                        <label class="label" for="title">Title</label>
+                        <input class="input" id="title" name="title" type="text" placeholder="What needs to get done?" required />
+                    </div>
+
+                    <div class="field_group">
+                        <label class="label" for="description">Description</label>
+                        <input class="input" id="description" name="description" type="text" placeholder="Optional details..." />
+                    </div>
+
+                    <div class="field_group">
+                        <label class="label" for="due_date">Due Date</label>
+                        <input class="input" id="due_date" name="due_date" type="datetime-local" />
+                    </div>
+
+                    <button type="submit" class="submit_btn">Add Task</button>
+
+                </form>
+
+            </div>
+
         </div>
 
-        <form id="add-task-form" action="/api/auth/register" method="POST">
-            <h1 id="tasks-root-title">Add task</h1>
-            <div class="add-task-input-field">
-                <label for="title" class="add-task-form-label">Title:</label>
-                <input class="add-task-form-input" id="title" name="title" required>
-            </div>
-            <div class="add-task-input-field">
-                <label for="description" class="add-task-form-label">Description:</label>
-                <input class="add-task-form-input" id="description" name="description">
-            </div>
-            <div class="add-task-input-field">
-                <label for="due_date" class="add-task-form-label">Due date:</label>
-                <input type="datetime-local" class="add-task-form-input" id="due_date" name="due_date">
-            </div>
-            <button type="submit" class="submit_button">Submit</button>
-        </form>
     </body>
 </html>

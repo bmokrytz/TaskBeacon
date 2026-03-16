@@ -1,218 +1,213 @@
 document.addEventListener("DOMContentLoaded", async () => {
+
     const token = localStorage.getItem("token");
 
     if (!token) {
-    alert("Not logged in");
-    window.location.href = "/";
-    return;
+        window.location.href = "/";
+        return;
     }
 
-    const email = localStorage.getItem("login_email");
-    const logged_in_as = document.getElementById("logged_in_as")
-    logged_in_as.textContent = email;
-    logged_in_as.style.paddingRight = "10px";
+    // Error box
+    const error_box = document.querySelector(".error_box");
 
-    const res = await fetch("/api/tasks", {
-    headers: { "Authorization": `Bearer ${token}` }
+    function showError(message) {
+        error_box.textContent = message;
+        error_box.style.display = "block";
+    }
+
+    function hideError() {
+        error_box.style.display = "none";
+    }
+
+    // Logout button
+    const logout_btn = document.querySelector(".logout_btn");
+
+    logout_btn.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("login_email");
+        window.location.href = "/index.html";
     });
 
-    if (!res.ok) {
-    alert("Failed to fetch tasks");
-    return;
+    // Fetch and render tasks
+    await loadTasks();
+
+    async function loadTasks() {
+        hideError();
+
+        try {
+            const res = await fetch("/api/tasks", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+            });
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "/";
+                return;
+            }
+
+            if (!res.ok) {
+                showError("Failed to load tasks. Please try again.");
+                return;
+            }
+
+            const tasks = await res.json();
+            renderTasks(tasks);
+
+        } catch (err) {
+            showError("Could not reach the server.");
+        }
     }
 
-    const tasks = await res.json();
-    await buildTaskTable(tasks);
-});
+    function renderTasks(tasks) {
+        const task_list = document.getElementById("task_list");
+        const empty_state = document.getElementById("empty_state");
 
-async function buildTaskTable(data) {
-    const root = document.getElementById("tasks-root");
+        task_list.innerHTML = "";
 
-    if (!Array.isArray(data) || data.length === 0) {
-    const table = document.createElement("table");
-    const table_head = document.createElement("thead");
-    const row = document.createElement("tr");
-    const header = document.createElement("th");
-    header.textContent = "No tasks";
-    header.style.fontSize = "2rem";
-    row.appendChild(header);
-    table_head.appendChild(row);
-    table.appendChild(table_head);
-    root.appendChild(table);
-    return;
+        if (tasks.length === 0) {
+            empty_state.style.display = "block";
+            return;
+        }
+
+        empty_state.style.display = "none";
+
+        for (const task of tasks) {
+            const card = buildTaskCard(task);
+            task_list.appendChild(card);
+        }
     }
 
-    const table = buildTaskTableHeader();
-    const tbody = document.createElement("tbody");
+    function buildTaskCard(task) {
+        const card = document.createElement("div");
+        card.className = "task_card";
 
-    data.forEach(async (task) => {
-        const taskRow = await buildTaskElement(task);
-        tbody.appendChild(taskRow);
-    });
-    table.appendChild(tbody);
-    root.appendChild(table);
-}
+        // Format due date for display
+        let due_date_text = "";
+        if (task.due_date) {
+            const d = new Date(task.due_date);
+            due_date_text = d.toLocaleDateString(undefined, {
+                year: "numeric", month: "short", day: "numeric",
+                hour: "2-digit", minute: "2-digit"
+            });
+        }
 
-function buildTaskTableHeader() {
-    const table = document.createElement("table");
+        const description_text = task.description
+            ? escapeHtml(task.description)
+            : "<em>No description.</em>";
 
-    const thead = document.createElement("thead");
+        card.innerHTML = `
+            <div class="task_card_main">
+                <div class="task_card_left">
+                    <div class="task_title">${escapeHtml(task.title)}</div>
+                    <div class="task_meta">
+                        <span class="task_status ${task.status}">${task.status}</span>
+                        ${due_date_text ? `<span class="task_due_date">Due ${due_date_text}</span>` : ""}
+                    </div>
+                </div>
+                <div class="task_card_right">
+                    <button class="checkmark_btn" data-id="${task.id}">✓</button>
+                    <button class="edit_btn" data-id="${task.id}">Edit</button>
+                    <button class="delete_btn" data-id="${task.id}">Delete</button>
+                </div>
+            </div>
+            <div class="task_description_drawer">
+                <p class="task_description_text">${description_text}</p>
+            </div>
+            <button class="expand_btn" aria-label="Expand task description">
+                <svg class="expand_arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+        `;
 
-    const header_row = document.createElement("tr");
+        // Mark complete
+        card.querySelector(".checkmark_btn").addEventListener("click", async (e) => {
+            e.stopPropagation();
+            await completeTask(task.id);
+        });
 
-    const title_header = document.createElement("th");
-    title_header.textContent = "Task";
-    header_row.appendChild(title_header);
+        // Edit
+        card.querySelector(".edit_btn").addEventListener("click", (e) => {
+            e.stopPropagation();
+            localStorage.setItem("task_id", task.id);
+            localStorage.setItem("task_title", task.title);
+            localStorage.setItem("task_description", task.description);
+            localStorage.setItem("task_status", task.status);
+            localStorage.setItem("task_due_date", task.due_date);
+            window.location.href = "/updateTask.html";
+        });
 
-    const desc_header = document.createElement("th");
-    desc_header.textContent = "Description";
-    header_row.appendChild(desc_header);
+        // Delete
+        card.querySelector(".delete_btn").addEventListener("click", async (e) => {
+            e.stopPropagation();
+            await deleteTask(task.id);
+        });
 
-    const status_header = document.createElement("th");
-    status_header.textContent = "Status";
-    header_row.appendChild(status_header);
+        // Expand/collapse description drawer
+        card.querySelector(".expand_btn").addEventListener("click", (e) => {
+            e.stopPropagation();
+            const is_expanded = card.classList.toggle("expanded");
+            card.querySelector(".expand_btn").setAttribute("aria-expanded", is_expanded);
+        });
 
-    const due_date_header = document.createElement("th");
-    due_date_header.textContent = "Due date";
-    header_row.appendChild(due_date_header);
+        return card;
+    }
 
-    const created_at_header = document.createElement("th");
-    created_at_header.textContent = "Creation date/time";
-    header_row.appendChild(created_at_header);
-
-    const updated_at_header = document.createElement("th");
-    updated_at_header.textContent = "Last update date/time";
-    header_row.appendChild(updated_at_header);
-
-    const actions_header = document.createElement("th");
-    actions_header.textContent = "Actions";
-    header_row.appendChild(actions_header);
-
-    thead.appendChild(header_row);
-    table.appendChild(thead);
-    return table;
-}
-
-async function buildActionButtions(row, task) {
-    const token = localStorage.getItem("token");
-
-    const data = document.createElement("td");
-    const container = document.createElement("div");
-    container.style.display = "flex";
-    container.style.flexDirection = "column";
-
-    const complete_task_btn = document.createElement("button");
-    complete_task_btn.textContent = "Mark completed";
-    complete_task_btn.className = "action_btn";
-    complete_task_btn.addEventListener("click", async () => {
+    async function completeTask(task_id) {
         const status = "completed";
+        const payload = { status };
 
-        const res = await fetch(`/api/tasks/${task.id}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ status })
-        });
+        try {
+            const res = await fetch(`/api/tasks/${task_id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(payload),
+            });
 
-        if (!res.ok) {
-            alert("Task update failed");
-            return;
+            if (!res.ok) {
+                showError("Failed to update task. Please try again.");
+                return;
+            }
+
+            await loadTasks();
+
+        } catch (err) {
+            showError("Could not reach the server.");
         }
-
-        window.location.href = "/tasks.html";
-    });
-    container.appendChild(complete_task_btn);
-
-    const update_task_btn = document.createElement("button");
-    update_task_btn.textContent = "Update";
-    update_task_btn.className = "action_btn";
-    update_task_btn.addEventListener("click", () => {
-        localStorage.setItem("task_id", task.id);
-        localStorage.setItem("task_title", task.title);
-        localStorage.setItem("task_description", task.description);
-        localStorage.setItem("task_status", task.status);
-        localStorage.setItem("task_due_date", task.due_date);
-        window.location.href = "/updateTask.html";
-    });
-    container.appendChild(update_task_btn);
-
-    const delete_task_btn = document.createElement("button");
-    delete_task_btn.textContent = "Delete";
-    delete_task_btn.className = "action_btn";
-    delete_task_btn.addEventListener("click", async () => {
-        const res = await fetch(`/api/tasks/${task.id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-        });
-
-        if (!res.ok) {
-            alert("Task delete failed");
-            return;
-        }
-
-        window.location.href = "/tasks.html";
-    });
-    container.appendChild(delete_task_btn);
-
-    data.appendChild(container);
-    row.appendChild(data);
-}
-
-async function buildTaskElement(task) {
-    const row = document.createElement("tr");
-
-
-    const title = document.createElement("td");
-    title.textContent = task.title ?? "";
-    title.style.width = "3cm";
-    row.appendChild(title);
-
-    const description = document.createElement("td");
-    description.textContent = task.description ?? "";
-    row.appendChild(description);
-
-    const status = document.createElement("td");
-    status.textContent = task.status ?? "";
-    row.appendChild(status);
-
-    const due_date = document.createElement("td");
-    if (task.due_date) {
-    const date = new Date(task.due_date);
-    due_date.textContent = date.toLocaleDateString();
-    } else {
-    due_date.textContent = "None";
     }
-    due_date.style.width = "1.5cm";
-    row.appendChild(due_date);
 
-    const created_at = document.createElement("td");
-    created_at.textContent = task.created_at ? new Date(task.created_at).toLocaleString() : "null";
-    row.appendChild(created_at);
+    async function deleteTask(task_id) {
+        try {
+            const res = await fetch(`/api/tasks/${task_id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+            });
 
-    const updated_at = document.createElement("td");
-    updated_at.textContent = task.updated_at ? new Date(task.updated_at).toLocaleString() : "No updates made";
-    row.appendChild(updated_at);
+            if (!res.ok && res.status !== 204) {
+                showError("Failed to delete task. Please try again.");
+                return;
+            }
 
-    await buildActionButtions(row, task);
+            await loadTasks();
 
-    return row;
-}
+        } catch (err) {
+            showError("Could not reach the server.");
+        }
+    }
 
-const logoutBtn = document.getElementById("logout_btn");
+    // Prevent XSS when inserting task titles into innerHTML
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
 
-logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("login_email");
-    window.location.href = "/index.html";
-});
-
-const add_task_btn = document.getElementById("add_task_btn");
-
-add_task_btn.addEventListener("click", () => {
-    window.location.href = "/addTask.html";
 });

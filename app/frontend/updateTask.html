@@ -3,49 +3,68 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Task Beacon</title>
+        <title>Task Beacon - Update Task</title>
 
         <link rel="stylesheet" href="/static/css/updateTask.css">
         <script src="/static/js/updateTask.js" defer></script>
     </head>
     <body>
-        <div class="button_container">
-            <button id="back_btn" class="submit_button" >Back</button>
+
+        <div class="page">
+
+            <!-- Decorations -->
+            <div class="blob1"></div>
+            <div class="blob2"></div>
+
+            <!-- Top Bar -->
+            <div class="top_bar">
+                <button id="back_btn" class="back_btn">Back</button>
+            </div>
+
+            <!-- Card -->
+            <div class="card">
+
+                <h1 class="page_title">Update Task</h1>
+                <div class="error_box"></div>
+
+                <form id="update-task-form">
+
+                    <div class="field_group">
+                        <label class="label" for="title">Title</label>
+                        <input class="input" id="title" name="title" type="text" placeholder="Task title" />
+                    </div>
+
+                    <div class="field_group">
+                        <label class="label" for="description">Description</label>
+                        <input class="input" id="description" name="description" type="text" placeholder="Optional details..." />
+                    </div>
+
+                    <div class="field_group">
+                        <span class="label">Status</span>
+                        <div class="radio_group">
+                            <label class="radio_label">
+                                <input type="radio" id="pending" name="status" value="pending" />
+                                <span class="radio_text">Pending</span>
+                            </label>
+                            <label class="radio_label">
+                                <input type="radio" id="completed" name="status" value="completed" />
+                                <span class="radio_text">Completed</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="field_group">
+                        <label class="label" for="due_date">Due Date</label>
+                        <input class="input" id="due_date" name="due_date" type="datetime-local" />
+                    </div>
+
+                    <button type="submit" class="submit_btn">Save Changes</button>
+
+                </form>
+
+            </div>
+
         </div>
-        
-        <form id="update-task-form" action="/api/auth/register" method="POST">
-            <h1 id="tasks-root-title">Update task</h1>
-            
-            <div class="update-task-input-field">
-                <label for="title" class="update-task-form-label">Title:</label>
-                <input class="update-task-form-input" id="title" name="title">
-            </div>
 
-            <div class="update-task-input-field">
-                <label for="description" class="update-task-form-label">Description:</label>
-                <input class="update-task-form-input" id="description" name="description">
-            </div>
-
-            <div class="update-task-input-field">
-                <span class="update-task-form-label">Status:</span>
-
-                <label style="margin-left: 1cm; font-size: 20px;">
-                    <input type="radio" id="pending" name="status" value="pending">
-                    Pending
-                </label>
-
-                <label style="margin-left: 1cm; font-size: 20px;">
-                    <input type="radio" id="completed" name="status" value="completed">
-                    Completed
-                </label>
-            </div>
-
-            <div class="update-task-input-field">
-                <label for="due_date" class="update-task-form-label">Due date:</label>
-                <input type="datetime-local" class="update-task-form-input" id="due_date" name="due_date">
-            </div>
-
-            <button type="submit" class="submit_button">Submit</button>
-        </form>
     </body>
 </html>
