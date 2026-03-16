@@ -1,12 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    const API_BASE = "http://localhost:8000"; // <-- change this
-
     const home_btn = document.querySelector(".home_btn");
     home_btn.addEventListener("click", () => {
         window.location.href = "/index.html";
     });
-
+``
     const error_box = document.querySelector(".error_box");
     error_box.style.display = "none";
 
@@ -42,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         submit_btn.style.opacity = "0.7";
 
         try {
-            const res = await fetch(`${API_BASE}/api/auth/register`, {
+            const res = await fetch(`/api/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
@@ -54,8 +52,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const data = await res.json();
-            const token = data.access_token || data.token;
+
+            const res_2 = await fetch(`/api/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (!res_2.ok) {
+                localStorage.removeItem("login_email");
+                window.location.href = "/";
+                return;
+            }
+
+            const data = await res_2.json();
+            const token = data.access_token;
 
             localStorage.setItem("token", token);
             localStorage.setItem("login_email", email);

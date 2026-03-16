@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     DB_POOL_TIMEOUT_S: int = 2
 
     # JWT
-    JWT_SECRET: str = Field(default="change-me")
+    JWT_SECRET: str
     JWT_ALGORITHM: str = Field(default="HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60)
 
