@@ -1,0 +1,35 @@
+.button_container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.submit_button {
+    padding: 10px 20px;
+    font-size: 20px;
+}
+
+.register-input-field {
+    margin-bottom: 5%;
+}
+
+.register-form-input {
+    width: 40%;
+}
+
+.register-form-label {
+    font-size: 1cm;
+}
+
+body {
+    background-color: #adb3c9;
+}
+
+#register-form-title {
+    font-size: 2cm;
+    color: #1f2937;
+}
+
+#register-form {
+    width: 70%;
+    margin: 0 auto;
+}

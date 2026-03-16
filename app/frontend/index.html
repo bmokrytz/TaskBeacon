@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
+
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,22 +11,71 @@
         <link rel="stylesheet" href="/static/css/index.css">
         <script src="/static/js/index.js" defer></script>
     </head>
-    <body>
-        <div class="button_container">
-            <button id="register" class="submit_button" >Register</button>
-        </div>
+    
 
-        <form id="login-form" action="/api/auth/login" method="POST">
-            <h2 id="login-form-title">Login</h2>
-            <div class="login-input-field">
-                <label for="email" class="login-form-label">Email:</label>
-                <input type="email" class="login-form-input" id="email" name="email" autocomplete="username" required>
+    <body>
+        
+
+        <div class="page">
+
+            <!-- Decorations -->
+            <div class="blob1"></div>
+            <div class="blob2"></div>
+
+
+            <!-- Top Bar -->
+            <div class="top_bar">
+            <button class="register_btn">Register</button>
             </div>
-            <div class="login-input-field">
-                <label for="password" class="login-form-label">Password:</label>
-                <input type="password" class="login-form-input" id="password" name="password" autocomplete="current-password" required>
+
+
+            <!-- Login card container -->
+            <div class="card">
+
+                <div class="logo_area">
+                    <div class="logo_text">
+                        <h1 class="app_name">Task Beacon</h1>
+                        <p class="tagline">Sign in to your workspace</p>
+                    </div>
+                    <div class="logo_card">
+                        <!--
+                        <div class="logo_icon">
+                            ◈ ————<br>
+                            ◈ ————<br>
+                            ◈ ————<br>
+                        </div>
+                        -->
+                        <div class="logo_icon">
+                            ◈ ------------<br>
+                            ◈ ------------<br>
+                            ◈ ------------<br>
+                        </div>
+                    </div>
+                </div>
+                <div class="error_box"></div>
+
+                <!-- Login form -->
+                <form class="form">
+
+                    <div class="field_group">
+                        <label class="label">Email</label>
+                        <input class="input" id="email" type="email" placeholder="you@example.com" autocomplete="username" required />
+                    </div>
+                    <div class="field_group">
+                        <label class="label">Password</label>
+                        <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+                    </div>
+                    <button class="submit_btn">Login</button>
+
+                </form>
+
             </div>
-            <button type="submit" class="submit_button">Submit</button>
-        </form>
+            
+
+        </div>
+        
     </body>
+    
+
+
 </html>

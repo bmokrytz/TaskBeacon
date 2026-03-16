@@ -22,7 +22,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 "default-src 'self'; "
                 "script-src 'self'; "
                 "style-src 'self'; "
-                "img-src 'self' data:; "
+                "img-src 'self'; "
                 "connect-src 'self'; "
                 "object-src 'none'; "
                 "base-uri 'self'; "

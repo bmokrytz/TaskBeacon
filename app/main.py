@@ -60,7 +60,7 @@ def create_app() -> FastAPI:
     from app.middleware.security_headers import SecurityHeadersMiddleware
     app.add_middleware(
         SecurityHeadersMiddleware, 
-        enable_csp=(settings.ENV == "prod"),
+        enable_csp=(settings.ENV == "PROD"),
     )
     
     # CORS middleware

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Task Beacon</title>
+
+        <link rel="stylesheet" href="/static/css/register.css">
+        <script src="/static/js/register.js" defer></script>
+    </head>
+    <body>
+        <div class="button_container">
+            <button id="login_btn" class="submit_button" >Login</button>
+        </div>
+
+        <form id="register-form" action="/api/auth/register" method="POST">
+            <h2 id="register-form-title">Register</h2>
+            <div class="register-input-field">
+                <label for="email" class="register-form-label">Email:</label>
+                <input type="email" class="register-form-input" id="email" name="email" autocomplete="username" required>
+            </div>
+            <div class="register-input-field">
+                <label for="password" class="register-form-label">Password:</label>
+                <input type="password" class="register-form-input" id="password" name="password" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="submit_button">Submit</button>
+        </form>
+    </body>
+</html>
