@@ -17,3 +17,7 @@ __pycache__/
 
 # Database
 .env
+
+# Deployment
+.deploy_version
+source_config.json
