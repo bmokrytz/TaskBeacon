@@ -57,9 +57,6 @@ class TaskCreate(BaseModel):
             return None
         if due_date_value.tzinfo is None:
             due_date_value = due_date_value.replace(tzinfo=timezone.utc)
-        now = datetime.now(timezone.utc)
-        if due_date_value < now:
-            raise ValueError("due date must be a future date")
         return due_date_value
 
 
@@ -109,9 +106,6 @@ class TaskUpdate(BaseModel):
             return None
         if due_date_value.tzinfo is None:
             due_date_value = due_date_value.replace(tzinfo=timezone.utc)
-        now = datetime.now(timezone.utc)
-        if due_date_value < now:
-            raise ValueError("due date must be a future date")
         return due_date_value
 
 
@@ -156,15 +150,11 @@ class TaskPublic(BaseModel):
         """
         Verify that due_date is a future date.
         - If due_date is None, return None
-        - If due_date is earlier than current datetime raise ValueError
         """
         if due_date_value is None:
             return None
         if due_date_value.tzinfo is None:
             due_date_value = due_date_value.replace(tzinfo=timezone.utc)
-        now = datetime.now(timezone.utc)
-        if due_date_value < now:
-            raise ValueError("due date must be a future date")
         return due_date_value
 
 
@@ -216,7 +206,4 @@ class Task(BaseModel):
             return None
         if due_date_value.tzinfo is None:
             due_date_value = due_date_value.replace(tzinfo=timezone.utc)
-        now = datetime.now(timezone.utc)
-        if due_date_value < now:
-            raise ValueError("due date must be a future date")
         return due_date_value
