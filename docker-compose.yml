@@ -3,9 +3,9 @@ services:
     image: postgres:16
     container_name: taskbeacon-db
     environment:
-      POSTGRES_DB: taskbeacon
-      POSTGRES_USER: taskbeacon
-      POSTGRES_PASSWORD: 3u8fKp9xT2mQ!
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "7001:5432"
     volumes:
