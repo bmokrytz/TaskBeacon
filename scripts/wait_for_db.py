@@ -18,7 +18,7 @@ for i in range(MAX_RETRIES):
             print("Database is ready.")
             sys.exit(0)
     except OperationalError as e:
-        print(f"Database not ready yet... retry {i+1}/{MAX_RETRIES}: {e}")
+        print(f"Database not ready yet... updated string - retry {i+1}/{MAX_RETRIES}: {e}")
         time.sleep(DELAY)
 
 print("Database never became ready. Exiting.")
