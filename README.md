@@ -1,6 +1,6 @@
 # TaskBeacon
 
-TaskBeacon is a backend task management API built with FastAPI with authentication, persistent storage, and cloud deployment.
+TaskBeacon is a full-stack task management API built with FastAPI with authentication, persistent storage, and cloud deployment. It is currently live at https://www.taskbeacon.ca
 
 ---
 
