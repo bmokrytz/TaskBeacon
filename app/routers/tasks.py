@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
-from app.auth.dependencies import get_current_user
 from uuid import UUID
 import logging
 
-from app.models.task import TaskPublic, TaskCreate, TaskUpdate, TaskStatus
+from app.auth.dependencies import get_current_user
+from app.models.task import TaskPublic, TaskCreate, TaskUpdate
 from app.models.user import User
 from app.db.session import get_db
 from app.storage.db_tasks import create_task, list_tasks, get_task_by_id, update_task, delete_task

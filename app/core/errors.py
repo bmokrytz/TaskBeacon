@@ -1,10 +1,23 @@
-import logging
 from fastapi import FastAPI, Request, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from slowapi.errors import RateLimitExceeded
+import logging
 
 logger = logging.getLogger(__name__)
+
+class InvalidCredentialsError(Exception):
+    """
+    Raised when user authentication fails due to invalid credentials.
+    """
+    pass
+
+class EmailAlreadyInUseError(Exception):
+    """
+    Raised when attempting to register a user with an email that is already in use.
+    """
+    pass
 
 
 def _payload(error: str, message: str, details=None, request_id: str | None = None) -> dict:
@@ -45,7 +58,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             content=_payload(
                 "validation_error",
                 "Request validation failed",
-                details=exc.errors(),
+                details=jsonable_encoder(exc.errors()),
             ),
         )
         

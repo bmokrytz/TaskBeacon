@@ -1,16 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Request, Response
 from sqlalchemy.orm import Session
-from typing import List
 import logging
 
 from app.models.user import UserCreate, UserPublic
-from app.db.models.user_orm import UserORM
-from app.auth.security import hash_password
 from app.models.auth import LoginRequest, TokenResponse
-from app.auth.security import verify_password
+from app.core.errors import InvalidCredentialsError, EmailAlreadyInUseError
 from app.auth.jwt import create_access_token
 from app.db.session import get_db
-from app.storage.db_users import create_user, get_user_by_email
+from app.services.auth_service import authenticate_user, register_user
 from app.auth.dependencies import get_current_user
 from app.api.serializers import user_orm_to_public
 from app.core.rate_limit import limiter
@@ -39,17 +36,10 @@ def register_endpoint(
     email = data.email
     logger.info("Register attempt email=%s", email)
 
-    password_hash = hash_password(data.password)
-
     try:
-        user = create_user(db, email=email, password_hash=password_hash)
-    except ValueError as e:
-        if "email already in use" in str(e).lower():
-            logger.warning("Register failed (email in use) email=%s", email)
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already in use")
-        logger.exception("Register failed (unexpected) email=%s", email)
-        raise HTTPException(status_code=500, detail="Internal server error")
-
+        user = register_user(db, email=email, password=data.password)
+    except EmailAlreadyInUseError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already in use")
     user_public = user_orm_to_public(user)
     return user_public
 
@@ -68,15 +58,12 @@ def login_endpoint(
     - Verify email + password
     - Return JWT access token
     """
-    logger.info("Login attempt email=%s", data.email)
-
-    user = get_user_by_email(db, email=data.email)
-    if not user:
-        logger.warning("Login failed (Invalid credentials)")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-
-    if not verify_password(data.password, user.password_hash):
-        logger.warning("Login failed (Invalid credentials)")
+    email, password = data.email, data.password
+    logger.info("Login attempt email=%s", email)
+    
+    try:
+        user = authenticate_user(db, email=email, password=password)
+    except InvalidCredentialsError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     token = create_access_token(user_id=str(user.id))

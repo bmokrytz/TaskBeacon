@@ -1,13 +1,10 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose.exceptions import JWTError
-from uuid import UUID
-
 from sqlalchemy.orm import Session
 
-from app.auth.jwt import get_token_subject
 from app.db.session import get_db
-from app.storage.db_users import get_user_by_id
+from app.core.errors import InvalidCredentialsError
+from app.services.auth_service import resolve_current_user
 
 bearer_scheme = HTTPBearer()
 
@@ -28,14 +25,8 @@ def get_current_user(
     token = creds.credentials
 
     try:
-        user_id_str = get_token_subject(token)
-        user_id = UUID(user_id_str)
-    except (JWTError, ValueError):
+        user = resolve_current_user(db, token)
+    except InvalidCredentialsError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token")
-
-    user = get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token")
-
     return user
 
