@@ -1,8 +1,6 @@
-from uuid import UUID
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from typing import List
+from uuid import UUID
 import logging
 
 from app.db.models.user_orm import UserORM
@@ -22,7 +20,7 @@ def create_user(db: Session, *, email: str, password_hash: str) -> UserORM:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise ValueError("email already in use")
+        raise ValueError("Email already in use")
 
     db.refresh(user)
     return user
