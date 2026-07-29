@@ -1,0 +1,224 @@
+.header-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 64px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-sizing: border-box;
+    padding: 0 24px;
+}
+
+.title {
+    color: #0f172a;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.signed-in-user-label {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0px;
+}
+
+.signed-in-user {
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0px 16px 0px 4px;
+}
+
+.sign-out-btn-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.sign-out-btn {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    background-color: #ffffff;
+    transition: background-color 150ms;
+}
+
+.sign-out-btn:hover {
+    background-color: #f1f5f9;
+}
+
+.dashboard-page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    box-sizing: border-box;
+}
+
+.dashboard-toolbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.dashboard-heading {
+    color: #0f172a;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.add-task-btn {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background-color: #0d9488;
+    transition: background-color 150ms;
+}
+
+.add-task-btn:hover {
+    background-color: #0f766e;
+}
+
+.empty-state {
+    color: #64748b;
+    font-size: 15px;
+    text-align: center;
+    margin-top: 60px;
+}
+
+.task-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.task-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.task-table thead th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 16px;
+    white-space: nowrap;
+}
+
+.task-row td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #0f172a;
+    vertical-align: middle;
+}
+
+.task-row:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.task-row:last-child td {
+    border-bottom: none;
+}
+
+.task-title-cell {
+    font-weight: 600;
+    max-width: 220px;
+}
+
+.task-description-cell {
+    color: #475569;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.completed-row .task-title-cell {
+    text-decoration: line-through;
+    color: #94a3b8;
+}
+
+.status-pill {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space: nowrap;
+}
+
+.status-pill.pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-pill.completed {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.actions-cell {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.row-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 150ms;
+}
+
+.row-btn.toggle-btn {
+    background-color: #0d9488;
+    color: white;
+}
+
+.row-btn.toggle-btn:hover {
+    background-color: #0f766e;
+}
+
+.row-btn.edit-btn {
+    background-color: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.row-btn.edit-btn:hover {
+    background-color: #f1f5f9;
+}
+
+.row-btn.delete-btn {
+    background-color: #dc2626;
+    color: white;
+}
+
+.row-btn.delete-btn:hover {
+    background-color: #b91c1c;
+}
