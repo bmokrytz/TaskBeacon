@@ -1,6 +1,7 @@
 import logging
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pathlib import Path
 import mimetypes
 
@@ -16,7 +17,7 @@ tags_metadata = [
     {"name": "tasks", "description": "Task CRUD operations (requires authentication)."},
 ]
 
-FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
+FRONTEND_DIR = Path(__file__).resolve().parent / "frontend" / "dist"
 
 def create_app() -> FastAPI:
     """
@@ -101,13 +102,20 @@ def create_app() -> FastAPI:
     app.include_router(tasks_endpoint_router)
     app.include_router(auth_endpoint_router)
     
-    # Frontend JS and CSS files
+    # Frontend built assets (JS/CSS bundles)
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR), check_dir=True), name="static",)
-    
-    # Frontend static html files
-    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True, check_dir=True), name="frontend",)
 
-    
+    # React SPA: serve the matching static file if one exists (e.g. /assets/*.js),
+    # otherwise fall back to index.html so client-side routes (e.g. /dashboard)
+    # work on a hard refresh too, not just on in-app navigation.
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def serve_spa(full_path: str):
+        candidate = FRONTEND_DIR / full_path
+        if full_path and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(FRONTEND_DIR / "index.html")
+
+
 
     logging.getLogger(__name__).info("TaskBeacon app created ENV=%s", settings.ENV)
     return app
