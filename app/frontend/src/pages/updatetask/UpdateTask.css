@@ -1,0 +1,117 @@
+.back-btn-box {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+}
+
+.back-btn {
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: background-color 150ms;
+}
+
+.back-btn:hover {
+    background-color: #f1f5f9;
+}
+
+.task-form-container {
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    border-radius: 16px;
+    width: 460px;
+    padding: 40px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.task-form-container h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 20px 0;
+}
+
+.task-form-container h2 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #dc2626;
+    margin: 0 0 16px 0;
+}
+
+.task-form-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.task-form-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.task-form-field input[type="text"],
+.task-form-field input[type="date"] {
+    height: 38px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 15px;
+    color: #0f172a;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.task-form-field input:focus {
+    outline: none;
+    border-color: #0d9488;
+}
+
+.task-form-radio-group {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+
+.task-form-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 0;
+}
+
+.task-form-submit {
+    display: flex;
+    justify-content: end;
+    margin-top: 8px;
+}
+
+.task-form-submit button {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background-color: #0d9488;
+    transition: background-color 150ms;
+}
+
+.task-form-submit button:hover {
+    background-color: #0f766e;
+}
+
+.task-form-submit button[disabled] {
+    opacity: 0.6;
+    cursor: default;
+}
