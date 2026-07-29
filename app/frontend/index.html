@@ -1,78 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Task Beacon</title>
-
-        <link rel="stylesheet" href="/static/css/index.css">
-        <script src="/static/js/index.js" defer></script>
-    </head>
-    
-
-    <body>
-        
-
-        <div class="page">
-
-
-
-            <!-- Top Bar -->
-            <div class="top_bar">
-            <button class="register_btn">Register</button>
-            </div>
-
-
-            <!-- Login card container -->
-            <div class="card">
-
-                <div class="logo_area">
-                    <div class="logo_text">
-                        <h1 class="app_name">Task Beacon</h1>
-                        <p class="tagline">Sign in to your workspace</p>
-                    </div>
-                    <div class="logo_card">
-                        <!--
-                        <div class="logo_icon">
-                            ◈ ————<br>
-                            ◈ ————<br>
-                            ◈ ————<br>
-                        </div>
-                        -->
-                        <div class="logo_icon">
-                            ◈ ------------<br>
-                            ◈ ------------<br>
-                            ◈ ------------<br>
-                        </div>
-                    </div>
-                </div>
-                <div class="error_box"></div>
-
-                <!-- Login form -->
-                <form class="form">
-
-                    <div class="field_group">
-                        <label class="label">Email</label>
-                        <input class="input" id="email" type="email" placeholder="you@example.com" autocomplete="username" required />
-                    </div>
-                    <div class="field_group">
-                        <label class="label">Password</label>
-                        <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
-                    </div>
-                    <button class="submit_btn">Login</button>
-
-                </form>
-
-            </div>
-            
-
-        </div>
-        
-    </body>
-    
-
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Beacon</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
