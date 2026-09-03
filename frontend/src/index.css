@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+html, body, #root {
+  height: 100%;
+}
+
+:root {
+  --font-inter: 'Inter Variable', sans-serif;
+  --color-cream: #f2ecdc;
+  --color-header: #6e6b63;
+  --color-off-white: #f8f8f8;
+  --color-light-gray: #e0e0de;
+}
+
+@theme inline {
+  --color-background:    var(--color-light-gray);
+  --color-header:       var(--color-header);
+  --color-cream:         var(--color-cream);
+
+  --font-sans:           var(--font-inter);
+  --default-font-family: var(--font-sans);
+
+}
