@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60)
 
     # Web
-    CORS_ORIGINS: List[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    CORS_ORIGINS: List[str] = Field(default_factory=lambda: ["http://localhost:5173"])
     ALLOWED_HOSTS: str = Field(default="localhost,127.0.0.1")
 
     # Rate Limiting

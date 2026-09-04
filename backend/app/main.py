@@ -86,7 +86,7 @@ def create_app() -> FastAPI:
     from app.core.errors import register_exception_handlers
     register_exception_handlers(app)
     
-    # Auth context middleware (sets request.state.user_id)
+    # Auth context middleware (sets request.state.user_id)okay I a
     from app.middleware.auth_context import AuthContextMiddleware
     app.add_middleware(AuthContextMiddleware)
     
@@ -103,17 +103,19 @@ def create_app() -> FastAPI:
     app.include_router(auth_endpoint_router)
     
     # Frontend built assets (JS/CSS bundles)
-    app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR), check_dir=True), name="static",)
+    #app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR), check_dir=True), name="static",)
 
     # React SPA: serve the matching static file if one exists (e.g. /assets/*.js),
     # otherwise fall back to index.html so client-side routes (e.g. /dashboard)
     # work on a hard refresh too, not just on in-app navigation.
+    """
     @app.get("/{full_path:path}", include_in_schema=False)
     def serve_spa(full_path: str):
         candidate = FRONTEND_DIR / full_path
         if full_path and candidate.is_file():
             return FileResponse(candidate)
         return FileResponse(FRONTEND_DIR / "index.html")
+    """
 
 
 
