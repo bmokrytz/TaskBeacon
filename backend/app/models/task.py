@@ -10,15 +10,16 @@ from pydantic import BaseModel, Field, field_validator
 
 class TaskStatus(str, Enum):
     pending = "pending"
+    in_progress = "in_progress"
     completed = "completed"
 
 
 class TaskCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=120)
     description: Optional[str] = Field(None, max_length=400)
-    status: TaskStatus = TaskStatus.pending
+    status: TaskStatus
     due_date: Optional[datetime] = None
-    
+
     @field_validator("title")
     @classmethod
     def title_must_not_be_blank(cls, title_value: str) -> str:

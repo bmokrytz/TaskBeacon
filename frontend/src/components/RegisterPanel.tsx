@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router"; 
 import { useState } from "react";
-import { login } from "@/lib/api/auth";
 
-export default function LoginPanel() {
+export default function RegisterPanel() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
     const navigate = useNavigate();
     const fieldBoxClassName = "flex flex-col mb-4 w-4/5";
@@ -12,13 +12,7 @@ export default function LoginPanel() {
     const textInputClassName = "border border-gray-300 p-2 mb-2 rounded-lg";
 
     async function handleSubmit() {
-        const isLoginSuccessful = await login(email, password);
-        if (isLoginSuccessful) {
-            console.log("Login successful");
-            navigate("/dashboard");
-        } else {
-            console.error("Login failed");
-        }
+        console.log('still need to implement.');
     }
 
     return (
@@ -29,7 +23,7 @@ export default function LoginPanel() {
                                 handleSubmit();
                             }}>
                     <div className="flex items-center justify-center mb-6">
-                        <p className="text-4xl font-bold text-black">Task Beacon</p>
+                        <p className="text-4xl font-bold text-black">Create an Account</p>
                     </div>
                     <div className="flex flex-col items-center">
                         <div className={fieldBoxClassName}>
@@ -56,15 +50,27 @@ export default function LoginPanel() {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
+                        <div className={fieldBoxClassName}>
+                            <label className={labelClassName}>
+                                Confirm Password:
+                            </label>
+                            <input
+                                type="password"
+                                placeholder="••••••••••••••••"
+                                className={textInputClassName}  
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                        </div>
                     </div>
                     <div className="flex items-center justify-end">
                         <button
                             type="submit"
                             className="bg-button-primary hover:bg-button-hover hover:cursor-pointer text-white text-xl mr-8 font-semibold px-4 py-2 mt-3 rounded-lg"
-                        >Login</button>
+                        >Register</button>
                     </div>
                     <p className="pt-5 text-center text-gray-600">
-                        Don't have an account? <a onClick={() => navigate("/register")} className="pl-1 text-button-primary font-bold hover:text-button-hover">Sign up</a>
+                        Already have an account? <a onClick={() => navigate("/")} className="pl-1 text-button-primary font-bold hover:text-button-hover">Sign in</a>
                     </p>
                 </form>
             </div>
