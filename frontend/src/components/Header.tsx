@@ -11,7 +11,7 @@ export default function Header() {
 
   return (
     <header className="bg-white border-b-gray-800 border-b py-5 px-10 flex items-center justify-between">
-      <p className="text-2xl text-black font-bold">TaskBeacon</p>
+      <p className="text-2xl text-black font-bold">Task Beacon</p>
       <button 
         className="bg-button-primary hover:bg-button-hover hover:cursor-pointer text-white text-md px-4 py-2 rounded-xl"
         onClick={handleLogout}

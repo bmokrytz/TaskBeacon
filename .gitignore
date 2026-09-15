@@ -15,6 +15,9 @@ __pycache__/
 # FastAPI / Uvicorn reload
 *.reload
 
+# Testing Library
+frontend/coverage/
+
 # Database
 .env
 

@@ -5,3 +5,7 @@ export function formatDate(dateString: string): string {
     const year = date.getUTCFullYear();
     return `${day}-${month}-${year}`;
 }
+
+export function toDateInputValue(dateString: string | null | undefined): string | null | undefined {
+    return dateString ? dateString.slice(0, 10) : dateString;
+}

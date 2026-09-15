@@ -15,7 +15,9 @@ html, body, #root {
   --color-button-primary: #34b4eb;
   --color-button-hover: #82d2f5;
   --color-status-completed: #03fc20;
+  --color-status-completed-text: #18a84e;
   --color-status-in-progress: #fce303;
+  --color-status-in-progress-text: #bf9f00;
 }
 
 @theme inline {
@@ -25,7 +27,9 @@ html, body, #root {
   --color-button-primary: var(--color-button-primary);
   --color-button-hover: var(--color-button-hover);
   --color-status-completed: var(--color-status-completed);
+  --color-status-completed-text: var(--color-status-completed-text);
   --color-status-in-progress: var(--color-status-in-progress);
+  --color-status-in-progress-text: var(--color-status-in-progress-text);
 
   --font-sans:           var(--font-inter);
   --default-font-family: var(--font-sans);

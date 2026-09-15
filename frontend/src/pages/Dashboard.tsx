@@ -10,18 +10,26 @@ import { Trash2 } from 'lucide-react';
 export default function Dashboard() {
     const [taskList, setTaskList] = useState<Task[]>([]);
     const [enableDelete, setEnableDelete] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTasks = async () => {
             const tasksData = await getTasks();
-            setTaskList(tasksData);
+            if (tasksData === null) {
+                setError("Something went wrong loading your tasks. Please try again later.");
+            } else {
+                setTaskList(tasksData);
+            }
+            setLoading(false);
         };
         fetchTasks();
     }, []);
 
     function handleTaskDeleted(taskId: Task['id']) {
         setTaskList((prev) => prev.filter((t) => t.id !== taskId));
+        
     }
 
     return (
@@ -41,9 +49,18 @@ export default function Dashboard() {
                             <div className='flex flex-row justify-center items-center gap-1'><Trash2 size={16} /></div>
                         </button>
                     </div>
-                    <EnableDeleteContext value={{enableDelete}}>
-                        {taskList.length > 0 && <TaskList taskList={taskList} onTaskDeleted={handleTaskDeleted} />}
-                    </EnableDeleteContext>
+                    {loading ? (
+                        <p className="text-center text-gray-500 pt-10">Loading tasks...</p>
+                    ) : error ? (
+                        <p className="text-center text-red-500 pt-10">{error}</p>
+                    ) : taskList.length > 0 ? (
+                        <EnableDeleteContext value={{enableDelete}}>
+                            {taskList.length > 0 && <TaskList taskList={taskList} onTaskDeleted={handleTaskDeleted} />}
+                        </EnableDeleteContext>
+                    ) : (
+                        <p className="text-center text-gray-500 pt-10">No tasks yet — create one to get started.</p>
+                    )}
+                        
                 </div>
                 
             </div>

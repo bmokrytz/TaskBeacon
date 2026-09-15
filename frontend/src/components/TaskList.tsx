@@ -1,12 +1,13 @@
 import { useState, useContext } from 'react';
-import type { Task, TaskUpdate } from '@/lib/api/tasks';
+import { useNavigate } from 'react-router';
+import type { Task } from '@/lib/api/tasks';
 import { formatDate } from '@/lib/utils/format';
-import { updateTask, setTaskStatus, deleteTask } from '@/lib/api/tasks';
+import { setTaskStatus, deleteTask } from '@/lib/api/tasks';
 import { EnableDeleteContext } from '@/context';
 
 const cellClass = 'min-h-24 align-middle py-3 px-2';
 //const innerCellClass = 'border-l border-gray-300 px-3';
-const buttonClass = 'border rounded-lg p-2 text-xs hover:cursor-pointer';
+const buttonClass = 'border rounded-lg p-2 text-[11px] hover:cursor-pointer w-max h-max';
 
 export default function TaskList({ taskList, onTaskDeleted }: { taskList: Task[], onTaskDeleted: (id: Task['id']) => void }) {
     return (
@@ -16,11 +17,11 @@ export default function TaskList({ taskList, onTaskDeleted }: { taskList: Task[]
                     <thead>
                         <tr className="bg-gray-100 text-left border-gray-300 border-b">
                             <th className={`${cellClass} pl-5 w-1/4`}>Title</th>
-                            <th className='w-1/4'>Description</th>
-                            <th className='w-1/8'>Status</th>
-                            <th className='w-1/8'>Due Date</th>
-                            <th className='w-1/8'>Created</th>
-                            <th className='w-2/8'>Actions</th>
+                            <th className='w-3/8'>Description</th>
+                            <th className='w-max'>Status</th>
+                            <th className='w-max'>Due Date</th>
+                            <th className='w-max'>Created</th>
+                            <th className='w-max'>Actions</th>
                         </tr>
                             
                     </thead>
@@ -38,15 +39,14 @@ export default function TaskList({ taskList, onTaskDeleted }: { taskList: Task[]
 
 function TaskItem({ task, index, onDeleted }: { task: Task, index: number, onDeleted: (id: Task['id']) => void }) {
     const [loadTask, setLoadTask] = useState(task);
-    const [title, setTitle] = useState(task.title);
-    const [description, setDescription] = useState(task.description);
-    const [status, setStatus] = useState(task.status);
-    const [dueDate, setDueDate] = useState(task.due_date);
+    
     const enableDeleteContext = useContext(EnableDeleteContext);
+
+    const navigate = useNavigate();
     
     const titleClass = `${cellClass} max-w-20 pl-5`;
     const background = index % 2 === 0 ? "bg-gray-100" : "bg-white";
-    const dueDateFormatted = dueDate ? formatDate(dueDate) : null;
+    const dueDateFormatted = loadTask.due_date ? formatDate(loadTask.due_date) : null;
     const creationDate = formatDate(task.created_at);
 
     async function updateTaskStatusHandler(status: "pending" | "in_progress" | "completed") {
@@ -54,28 +54,10 @@ function TaskItem({ task, index, onDeleted }: { task: Task, index: number, onDel
             const updatedTask = await setTaskStatus(task.id, status);
             if (updatedTask !== null) {
                 setLoadTask(updatedTask);
-                setStatus(updatedTask.status);
             }
 
         } catch(error) {
             console.error("Something went wrong. Try again later.");
-        }
-    }
-
-    async function taskUpdateHandler() {
-        const changes: TaskUpdate = {};
-        if (title !== loadTask.title) changes.title = title;
-        if (description !== loadTask.description) changes.description = description ?? undefined;
-        if (status !== loadTask.status) changes.status = status;
-        if (dueDate !== loadTask.due_date) changes.due_date = dueDate ?? undefined;
-        if (Object.keys(changes).length === 0) return;
-        const updatedTask = await updateTask(task.id, changes);
-        if (updatedTask !== null) {
-            setLoadTask(updatedTask);
-            setTitle(updatedTask.title);
-            setDescription(updatedTask.description);
-            setStatus(updatedTask.status);
-            setDueDate(updatedTask.due_date);
         }
     }
 
@@ -87,19 +69,25 @@ function TaskItem({ task, index, onDeleted }: { task: Task, index: number, onDel
 
     return (
         <tr className={`border-b border-gray-300 ${background}`}>
-            <td className={titleClass}>{title}</td>
-            {description === null ? (
+            <td className={titleClass}>{loadTask.title}</td>
+            {loadTask.description === null ? (
                 <td>—</td>
             ) : (
-                <td className='pr-1 overflow-hidden'>{description}</td>
+                <td className='pr-3 overflow-hidden'>{loadTask.description}</td>
             )}
             {
-                status === "completed" ? (
-                    <td className='text-status-completed'>{status}</td>
-                ) : status === "in_progress" ? (
-                    <td className='text-status-in-progress'>in progress</td>
+                loadTask.status === "completed" ? (
+                    <td className='text-status-completed-text font-semibold'>
+                        Completed
+                    </td>
+                ) : loadTask.status === "in_progress" ? (
+                    <td className='text-status-in-progress-text font-semibold'>
+                        In Progress
+                    </td>
                 ) : (
-                    <td>{status}</td>
+                    <td>
+                        Pending
+                    </td>
                 )
             }
             {dueDateFormatted === null ? (
@@ -111,38 +99,29 @@ function TaskItem({ task, index, onDeleted }: { task: Task, index: number, onDel
             <td>
                 <div className='flex flex-row gap-2 pr-1'>
                     {
-                        status === "pending" ? (
+                        loadTask.status === "pending" ? (
                             <button className={`${buttonClass} text-black bg-status-in-progress hover:bg-button-hover`} onClick={() => {updateTaskStatusHandler("in_progress")}}>
                                 In Progress
                             </button>
-                        ) : (
+                        ) : loadTask.status === "in_progress" ? (
                             <button className={`${buttonClass} text-black bg-status-completed hover:bg-button-hover`} onClick={() => {updateTaskStatusHandler("completed")}}>
                                 Complete
                             </button>
+                        ) : (
+                            <></>
                         )
                     }
                     
-                    <button className={`${buttonClass} bg-white hover:bg-gray-200 border border-gray-400`}>
+                    <button 
+                        onClick={() => {navigate(`/edit/${task.id}`)}}
+                        className={`${buttonClass} bg-white hover:bg-gray-200 border border-gray-400`}>
                         Edit</button>
                     <button 
                         onClick={deleteTaskHandler}
-                        className={enableDeleteContext.enableDelete ? `${buttonClass} text-white bg-red-400 hover:bg-red-800` : 'hidden'}>
+                        className={(loadTask.status === "completed" || enableDeleteContext.enableDelete) ? `${buttonClass} text-white bg-red-400 hover:bg-red-800` : 'hidden'}>
                         Delete</button>
                 </div>
             </td>
         </tr>
     );
 }
-
-
-/*
-export type Task = {
-    id: number;
-    title: string;
-    description?: string | null;
-    status: "pending" | "in_progress" | "completed";
-    due_date?: string | null;
-    created_at: string;
-    updated_at?: string | null;
-};
-*/
