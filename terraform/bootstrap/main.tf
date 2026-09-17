@@ -13,6 +13,14 @@ terraform {
 
 provider "aws" {
     region = "us-east-1"
+
+    default_tags {
+        tags = {
+            Project     = "TaskBeacon"
+            ManagedBy   = "Terraform"
+            Owner       = "bmokrytz"
+        }
+    }
 }
 
 resource "aws_s3_bucket" "terraform_state" {
@@ -20,6 +28,11 @@ resource "aws_s3_bucket" "terraform_state" {
 
     lifecycle {
         prevent_destroy = true
+    }
+
+    tags = {
+        Name        = "taskbeacon-remote-tfstate-bucket"
+        Description = "Remote terraform state storage for TaskBeacon application."
     }
 }
 
