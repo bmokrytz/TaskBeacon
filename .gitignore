@@ -21,3 +21,7 @@ __pycache__/
 # Deployment
 .deploy_version
 source_config.json
+
+frontend/
+open-workspace.bat
+terraform/
