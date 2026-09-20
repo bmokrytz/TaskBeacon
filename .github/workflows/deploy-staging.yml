@@ -1,0 +1,65 @@
+name: Deploy Staging to AWS ECS
+
+on:
+  push:
+    branches:
+      - staging
+
+permissions:
+  id-token: write # Required for requesting the JWT OIDC token from GitHub
+  contents: read # Required to checkout the repository
+
+jobs:
+  test-and-deploy:
+    name: Test, Build, Push, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm' # Caches dependencies for faster pipeline runs
+          cache-dependency-path: frontend/package-lock.json # Points cache to frontend lockfile
+        
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+      
+      - name: Run Frontend Tests
+        working-directory: ./frontend
+        run: npm run test:run
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag, and Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: taskbeacon-staging-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build container image with SHA tag and latest tag
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          
+          # Push both tags to ECR
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Force ECS Redeployment
+        run: |
+          aws ecs update-service \
+            --cluster taskbeacon-staging-cluster \
+            --service taskbeacon-staging-api-service \
+            --force-new-deployment \
+            --region us-east-1
