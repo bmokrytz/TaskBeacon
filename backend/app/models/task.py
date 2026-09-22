@@ -17,7 +17,7 @@ class TaskStatus(str, Enum):
 class TaskCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=120)
     description: Optional[str] = Field(None, max_length=400)
-    status: TaskStatus
+    status: TaskStatus = TaskStatus.pending
     due_date: Optional[datetime] = None
 
     @field_validator("title")
