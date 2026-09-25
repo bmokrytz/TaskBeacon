@@ -1,43 +1,98 @@
-name: Deploy Staging to AWS ECS
+name: Deploy Staging
 
 on:
   push:
     branches:
       - staging
+  workflow_dispatch: # Allows re-running a deploy manually from the Actions tab
+
+# Never run two staging deploys at once; a newer push waits for the current one to finish
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
 
 permissions:
-  id-token: write # Required for requesting the JWT OIDC token from GitHub
   contents: read # Required to checkout the repository
 
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: taskbeacon-staging-api
+  ECS_CLUSTER: taskbeacon-staging-cluster
+  ECS_SERVICE: taskbeacon-staging-api-service
+  VITE_API_URL: https://api-staging.taskbeacon.ca
+
 jobs:
-  test-and-deploy:
-    name: Test, Build, Push, and Deploy
+  # ---------------------------------------------------------------
+  # Tests (run in parallel, no AWS access)
+  # ---------------------------------------------------------------
+  test-backend:
+    name: Backend Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13' # Matches the Dockerfile base image
+          cache: 'pip'
+          cache-dependency-path: backend/requirements*.txt
+
+      - name: Install Backend Dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run Backend Tests
+        run: pytest
+
+  test-frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm' # Caches dependencies for faster pipeline runs
-          cache-dependency-path: frontend/package-lock.json # Points cache to frontend lockfile
-        
+          cache-dependency-path: frontend/package-lock.json
+
       - name: Install Frontend Dependencies
-        working-directory: ./frontend
         run: npm ci
-      
+
       - name: Run Frontend Tests
-        working-directory: ./frontend
         run: npm run test:run
+
+  # ---------------------------------------------------------------
+  # Deploys (only run if both test jobs pass)
+  # ---------------------------------------------------------------
+  deploy-backend:
+    name: Deploy Backend (ECR + ECS)
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    permissions:
+      id-token: write # Required for requesting the JWT OIDC token from GitHub
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Log in to Amazon ECR
         id: login-ecr
@@ -46,20 +101,85 @@ jobs:
       - name: Build, Tag, and Push Docker Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: taskbeacon-staging-api
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build container image with SHA tag and latest tag
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          
-          # Push both tags to ECR
+          # Commit SHA tag records exactly which code is in each image;
+          # latest tag is what the ECS task definition runs
+          docker build \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            ./backend
+
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
       - name: Force ECS Redeployment
         run: |
           aws ecs update-service \
-            --cluster taskbeacon-staging-cluster \
-            --service taskbeacon-staging-api-service \
-            --force-new-deployment \
-            --region us-east-1
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment
+
+      - name: Wait for ECS Service to Stabilize
+        # Fails the job if the new tasks never become healthy (up to ~10 minutes)
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE
+
+  deploy-frontend:
+    name: Deploy Frontend (S3 + CloudFront)
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    permissions:
+      id-token: write # Required for requesting the JWT OIDC token from GitHub
+      contents: read
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Build Frontend
+        # VITE_API_URL (from workflow env) is baked into the compiled JavaScript here
+        run: npm run build
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload to S3
+        env:
+          BUCKET: ${{ vars.STAGING_FRONTEND_BUCKET }}
+        run: |
+          # Hashed assets (index-abc123.js) never change content, so browsers can cache them forever
+          aws s3 sync dist/ s3://$BUCKET/ \
+            --delete \
+            --exclude index.html \
+            --cache-control "public, max-age=31536000, immutable"
+
+          # index.html is uploaded last and never cached, so browsers always pick up the newest asset names
+          aws s3 cp dist/index.html s3://$BUCKET/index.html \
+            --cache-control "no-cache"
+
+      - name: Invalidate CloudFront Cache
+        env:
+          DISTRIBUTION_ID: ${{ vars.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id $DISTRIBUTION_ID \
+            --paths "/*"

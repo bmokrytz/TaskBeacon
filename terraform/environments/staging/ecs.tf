@@ -37,6 +37,32 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# Secrets are created manually in SSM Parameter Store (never stored in Terraform state).
+# Terraform only references them by ARN so ECS can inject them at container start.
+data "aws_caller_identity" "current" {}
+
+locals {
+  ssm_prefix_arn = "arn:aws:ssm:us-east-1:${data.aws_caller_identity.current.account_id}:parameter/taskbeacon/staging"
+}
+
+# Allow the execution role to read this environment's secrets
+# (alias/aws/ssm is an AWS-managed key, so no extra kms:Decrypt permission is needed)
+resource "aws_iam_role_policy" "ecs_execution_read_secrets" {
+  name = "taskbeacon-staging-read-secrets"
+  role = aws_iam_role.ecs_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["ssm:GetParameters"]
+        Resource = "${local.ssm_prefix_arn}/*"
+      }
+    ]
+  })
+}
+
 # 4. IAM Task Role (Permissions for the running app itself)
 resource "aws_iam_role" "ecs_task_role" {
   name = "taskbeacon-staging-ecs-task-role"
@@ -79,6 +105,24 @@ resource "aws_ecs_task_definition" "api" {
         }
       ]
 
+      # Non-secret config, read by app/core/settings.py
+      environment = [
+        { name = "ENV", value = "PROD" },
+        { name = "LOG_LEVEL", value = "INFO" },
+        { name = "CORS_ORIGINS", value = jsonencode(["https://${local.frontend_domain}"]) },
+        # Host filtering is done by the ALB listener rule; ALB health checks use the task IP as Host
+        { name = "ALLOWED_HOSTS", value = "*" },
+        # Trust X-Forwarded-For from the ALB so rate limiting sees real client IPs
+        # (safe because the ECS security group only accepts traffic from the ALB)
+        { name = "FORWARDED_ALLOW_IPS", value = "*" },
+      ]
+
+      # Secrets pulled from SSM Parameter Store at container start
+      secrets = [
+        { name = "DATABASE_URL", valueFrom = "${local.ssm_prefix_arn}/DATABASE_URL" },
+        { name = "JWT_SECRET", valueFrom = "${local.ssm_prefix_arn}/JWT_SECRET" },
+      ]
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -111,7 +155,14 @@ resource "aws_ecs_service" "api" {
     container_port   = 8000
   }
 
-  depends_on = [aws_lb_listener.http]
+  lifecycle {
+    ignore_changes = [ desired_count ]
+  }
+
+  # Give the container time to wait for the DB and run migrations before health checks count
+  health_check_grace_period_seconds = 60
+
+  depends_on = [aws_lb_listener_rule.api]
 }
 
 # 7. Auto Scaling Target (Registers ECS service and defines limits)
