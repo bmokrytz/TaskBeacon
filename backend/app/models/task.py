@@ -39,7 +39,7 @@ class TaskCreate(BaseModel):
         """
         Verify that description is not blank.
         - Strip whitespace
-        - If description is blank/empty raise ValueError
+        - If description is blank/empty set it as None
         """
         if description_value is None:
             return None
