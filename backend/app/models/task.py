@@ -78,7 +78,7 @@ class TaskUpdate(BaseModel):
         - If title is blank/empty raise ValueError
         """
         if title_value is None:
-            return None
+            raise ValueError("title cannot be null")
         title_value = title_value.strip()
         if not title_value:
             raise ValueError("title cannot be empty")
@@ -96,6 +96,17 @@ class TaskUpdate(BaseModel):
             return None
         description_value = description_value.strip()
         return description_value if description_value else None
+    
+    @field_validator("status")
+    @classmethod
+    def status_cannot_be_null(cls, status_value: TaskStatus) -> TaskStatus:
+        """
+        Verify that status is not null.
+        - If status is null, raise ValueError
+        """
+        if status_value is None:
+            raise ValueError("status cannot be null")
+        return status_value
     
     @field_validator("due_date")
     @classmethod
