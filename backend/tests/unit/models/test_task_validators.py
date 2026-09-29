@@ -30,10 +30,10 @@ class TestTaskCreate:
             TaskCreate(title="")
     
     def test_empty_title_after_whitespace_gets_stripped_is_rejected(self):
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as excinfo:
             TaskCreate(title="        ")
         
-        errors = exc_info.value.errors()
+        errors = excinfo.value.errors()
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("title",)
@@ -130,15 +130,19 @@ class TestTaskUpdate:
         
         assert task_update.title is None
     
+    def test_explicit_none_title_is_rejected(self):
+        with pytest.raises(ValidationError, match="title cannot be null"):
+            TaskUpdate(title=None)
+    
     def test_empty_title_is_rejected(self):
         with pytest.raises(ValidationError):
             TaskUpdate(title="")
     
     def test_empty_title_after_whitespace_gets_stripped_is_rejected(self):
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as excinfo:
             TaskUpdate(title="      ")
 
-        errors = exc_info.value.errors()
+        errors = excinfo.value.errors()
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("title",)
@@ -191,10 +195,10 @@ class TestTaskUpdate:
     def test_past_due_date_is_rejected(self):
         due_date = datetime.now(timezone.utc) - timedelta(days=1)
         
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as excinfo:
             TaskUpdate(due_date=due_date)
         
-        errors = exc_info.value.errors()
+        errors = excinfo.value.errors()
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("due_date",)
@@ -210,6 +214,10 @@ class TestTaskUpdate:
         task_update = TaskUpdate()
         
         assert task_update.status is None
+    
+    def test_explicit_none_status_is_rejected(self):
+        with pytest.raises(ValidationError, match="status cannot be null"):
+            TaskUpdate(status=None)
     
     def test_valid_status_is_accepted(self):
         task_update = TaskUpdate(status=TaskStatus.completed)
@@ -260,10 +268,10 @@ class TestTaskPublic:
             TaskPublic(id=uuid.uuid4(), title="")
     
     def test_empty_title_after_whitespace_stripped_is_rejected(self):
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as excinfo:
             TaskPublic(id=uuid.uuid4(), title="      ")
         
-        errors = exc_info.value.errors()
+        errors = excinfo.value.errors()
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("title",)

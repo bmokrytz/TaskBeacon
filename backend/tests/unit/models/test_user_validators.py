@@ -47,10 +47,10 @@ class TestUserPublic:
     
     @pytest.mark.parametrize("email", ["", "         "])
     def test_empty_email_is_rejected(self, email):
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as excinfo:
             UserPublic(id=test_id, email=email, created_at=test_current_time)
         
-        errors = exc_info.value.errors()
+        errors = excinfo.value.errors()
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("email",)
@@ -89,10 +89,10 @@ class TestUserCreate:
     
     @pytest.mark.parametrize("email", ["", "        "])
     def test_empty_email_is_rejected(self, email):
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as excinfo:
             UserCreate(email=email, password=test_password)
         
-        errors = exc_info.value.errors()
+        errors = excinfo.value.errors()
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("email",)
@@ -122,10 +122,10 @@ class TestUserCreate:
     
     @pytest.mark.parametrize("password", ["", "         "])
     def test_empty_password_is_rejected(self, password):
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as excinfo:
             UserCreate(email=test_email, password=password)
 
-        errors = exc_info.value.errors()
+        errors = excinfo.value.errors()
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("password",)
@@ -165,10 +165,10 @@ class TestUser:
     
     @pytest.mark.parametrize("email", ["", "       "])
     def test_empty_email_is_rejected(self, email):
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as excinfo:
             User(id=test_id, email=email, password_hash=test_password_hash, created_at=test_current_time)
         
-        errors = exc_info.value.errors()
+        errors = excinfo.value.errors()
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("email",)
