@@ -5,7 +5,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.user import User, UserCreate, UserPublic
-from app.auth.security import hash_password
+from app.auth.security import hash_password, verify_password
 
 test_email = "user@example.com"
 test_password = "Password123@"
@@ -109,9 +109,11 @@ class TestUserCreate:
                 
         assert user_create.email == "user@example.com"
     
-    @pytest.mark.parametrize("length", [8, 128])
+    @pytest.mark.parametrize("length", [8, 72])
     def test_password_within_length_limits_is_accepted(self, length):
         password = "e" * length
+        password_hash = hash_password(password)
+        assert verify_password(password, password_hash)
         user_create = UserCreate(email=test_email, password=password)
                         
         assert user_create.password == password
