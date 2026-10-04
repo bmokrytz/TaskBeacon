@@ -193,7 +193,7 @@ class TestTaskUpdate:
         assert task_update.due_date is None
     
     def test_past_due_date_is_rejected(self):
-        due_date = datetime.now(timezone.utc) - timedelta(days=1)
+        due_date = datetime.now(timezone.utc) - timedelta(days=2)
         
         with pytest.raises(ValidationError) as excinfo:
             TaskUpdate(due_date=due_date)
@@ -202,7 +202,7 @@ class TestTaskUpdate:
         error = errors[0]
         assert len(errors) == 1
         assert error["loc"] == ("due_date",)
-        assert str(error["ctx"]["error"]) == "due_date must be a future date"
+        assert str(error["ctx"]["error"]) == "due_date must be a current or future date"
     
     def test_due_date_with_no_timezone_gets_utc(self):
         due_date = datetime.now() + timedelta(days=3)
