@@ -42,14 +42,14 @@ def exception_client():
 
 
 class TestExceptionHandlers:
-    def test_http_exception_returns_404(self, test_exception_client):
-        response = test_exception_client.get("/http-404")
+    def test_http_exception_returns_404(self, exception_client):
+        response = exception_client.get("/http-404")
         
         assert response.status_code == 404
         assert response.json() == {"error": "not_found", "message": "Task not found"}
     
-    def test_validation_error_returns_422(self, test_exception_client):
-        response = test_exception_client.post("/validate", json={})
+    def test_validation_error_returns_422(self, exception_client):
+        response = exception_client.post("/validate", json={})
         body = response.json()
         
         assert response.status_code == 422
@@ -58,8 +58,8 @@ class TestExceptionHandlers:
         assert body["details"][0]["loc"] == ["body", "name"]
         
     
-    def test_rate_limit_exception_returns_429(self, test_exception_client):
-        response = test_exception_client.get("/rate-limited")
+    def test_rate_limit_exception_returns_429(self, exception_client):
+        response = exception_client.get("/rate-limited")
         body = response.json()
         
         assert response.status_code == 429
@@ -68,8 +68,8 @@ class TestExceptionHandlers:
         assert body["details"] == {"retry_after": None}
         assert body["request_id"] == "req-123"
     
-    def test_unhandled_exception_returns_500(self, test_exception_client):
-        response = test_exception_client.get("/unhandled")
+    def test_unhandled_exception_returns_500(self, exception_client):
+        response = exception_client.get("/unhandled")
         body = response.json()
         
         assert response.status_code == 500
