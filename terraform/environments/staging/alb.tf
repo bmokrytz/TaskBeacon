@@ -37,7 +37,7 @@ resource "aws_lb_target_group" "api" {
 }
 
 # 3. TLS certificate for the API domain (free via ACM)
-# Validated by a CNAME record added manually in Cloudflare (see api_cert_validation_records output)
+# Validated by a CNAME record in Cloudflare (see api_cert_validation_records output)
 resource "aws_acm_certificate" "api" {
   domain_name       = local.api_domain
   validation_method = "DNS"
