@@ -13,7 +13,7 @@ class _Item(BaseModel):
     name: str
 
 @pytest.fixture()
-def test_exception_client():
+def exception_client():
     """
     TestClient for a minimal FastAPI app with routes to raise different exception types.
     """

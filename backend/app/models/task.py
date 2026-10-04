@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Optional
 from uuid import UUID
@@ -54,12 +54,13 @@ class TaskCreate(BaseModel):
         - If due_date is None, return None
         - If due_date is earlier than current datetime raise ValueError
         """
+        yesterday = datetime.now(timezone.utc) - timedelta(days=1)
         if due_date_value is None:
             return None
         if due_date_value.tzinfo is None:
             due_date_value = due_date_value.replace(tzinfo=timezone.utc)
-        if due_date_value < datetime.now(timezone.utc):
-            raise ValueError("due_date must be a future date")
+        if due_date_value <= yesterday:
+            raise ValueError("due_date must be a current or future date")
         return due_date_value
 
 
@@ -116,12 +117,13 @@ class TaskUpdate(BaseModel):
         - If due_date is None, return None
         - If due_date is earlier than current datetime raise ValueError
         """
+        yesterday = datetime.now(timezone.utc) - timedelta(days=1)
         if due_date_value is None:
             return None
         if due_date_value.tzinfo is None:
             due_date_value = due_date_value.replace(tzinfo=timezone.utc)
-        if due_date_value < datetime.now(timezone.utc):
-            raise ValueError("due_date must be a future date")
+        if due_date_value <= yesterday:
+            raise ValueError("due_date must be a current or future date")
         return due_date_value
 
 
