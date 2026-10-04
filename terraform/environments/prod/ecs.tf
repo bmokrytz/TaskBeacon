@@ -55,7 +55,7 @@ resource "aws_iam_role_policy" "ecs_execution_read_secrets" {
     role = aws_iam_role.ecs_execution_role.id
 
     policy = jsonencode({
-        version = "2012-10-17"
+        Version = "2012-10-17"
         Statement = [
             {
                 Effect   = "Allow"
@@ -175,7 +175,7 @@ resource "aws_appautoscaling_target" "ecs_target" {
 
 # Target Tracking Scaling Policy (Triggers on 70% CPU threshold)
 resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
-    name                = "taskbeacon-staging-cpu-autoscaling"
+    name                = "taskbeacon-production-cpu-autoscaling"
     policy_type         = "TargetTrackingScaling"
     resource_id         = aws_appautoscaling_target.ecs_target.resource_id
     scalable_dimension  = aws_appautoscaling_target.ecs_target.scalable_dimension
