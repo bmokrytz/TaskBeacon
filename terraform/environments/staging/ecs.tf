@@ -1,4 +1,4 @@
-# 1. CloudWatch Log Group for container logs
+# CloudWatch Log Group for container logs
 resource "aws_cloudwatch_log_group" "ecs_logs" {
   name              = "/ecs/taskbeacon-staging-api"
   retention_in_days = 7
@@ -8,12 +8,12 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
   }
 }
 
-# 2. ECS Cluster
+# ECS Cluster
 resource "aws_ecs_cluster" "main" {
   name = "taskbeacon-staging-cluster"
 }
 
-# 3. IAM Execution Role (Allows ECS agent to pull ECR images and write CloudWatch logs)
+# IAM Execution Role (Allows ECS agent to pull ECR images and write CloudWatch logs)
 resource "aws_iam_role" "ecs_execution_role" {
   name = "taskbeacon-staging-ecs-execution-role"
 
@@ -46,7 +46,6 @@ locals {
 }
 
 # Allow the execution role to read this environment's secrets
-# (alias/aws/ssm is an AWS-managed key, so no extra kms:Decrypt permission is needed)
 resource "aws_iam_role_policy" "ecs_execution_read_secrets" {
   name = "taskbeacon-staging-read-secrets"
   role = aws_iam_role.ecs_execution_role.id
@@ -63,7 +62,7 @@ resource "aws_iam_role_policy" "ecs_execution_read_secrets" {
   })
 }
 
-# 4. IAM Task Role (Permissions for the running app itself)
+# IAM Task Role (Permissions for the running app itself)
 resource "aws_iam_role" "ecs_task_role" {
   name = "taskbeacon-staging-ecs-task-role"
 
@@ -81,7 +80,7 @@ resource "aws_iam_role" "ecs_task_role" {
   })
 }
 
-# 5. ECS Task Definition (Fargate configuration)
+# ECS Task Definition (Fargate configuration)
 resource "aws_ecs_task_definition" "api" {
   family                   = "taskbeacon-staging-api"
   network_mode             = "awsvpc"
@@ -135,7 +134,7 @@ resource "aws_ecs_task_definition" "api" {
   ])
 }
 
-# 6. ECS Service (Runs and maintains the Fargate tasks)
+# ECS Service (Runs and maintains the Fargate tasks)
 resource "aws_ecs_service" "api" {
   name            = "taskbeacon-staging-api-service"
   cluster         = aws_ecs_cluster.main.id
@@ -165,7 +164,7 @@ resource "aws_ecs_service" "api" {
   depends_on = [aws_lb_listener_rule.api]
 }
 
-# 7. Auto Scaling Target (Registers ECS service and defines limits)
+# Auto Scaling Target (Registers ECS service and defines limits)
 resource "aws_appautoscaling_target" "ecs_target" {
     max_capacity        = 4
     min_capacity        = 1
@@ -174,7 +173,7 @@ resource "aws_appautoscaling_target" "ecs_target" {
     service_namespace   = "ecs"
 }
 
-# 8. Target Tracking Scaling Policy (Triggers on 70% CPU threshold)
+# Target Tracking Scaling Policy (Triggers on 70% CPU threshold)
 resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
     name                = "taskbeacon-staging-cpu-autoscaling"
     policy_type         = "TargetTrackingScaling"
@@ -183,9 +182,9 @@ resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
     service_namespace   = aws_appautoscaling_target.ecs_target.service_namespace
 
     target_tracking_scaling_policy_configuration {
-      target_value          = 70.0 # Maintain 70% average CPU utilization
-      scale_in_cooldown     = 300 # Wait 5 mins before removing tasks
-      scale_out_cooldown    = 60 # Wait 1 min before adding tasks
+      target_value          = 70.0  # Maintain 70% average CPU utilization
+      scale_in_cooldown     = 300   # Wait 5 mins before removing tasks
+      scale_out_cooldown    = 60    # Wait 1 min before adding tasks
 
       predefined_metric_specification {
         predefined_metric_type = "ECSServiceAverageCPUUtilization"
