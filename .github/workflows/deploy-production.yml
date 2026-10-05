@@ -6,7 +6,7 @@ on:
       - production
   workflow_dispatch:
 
-# Never run two staging deploys at once; a newer push waits for the current one to finish
+# Never run two production deploys at once; a newer push waits for the current one to finish
 concurrency:
   group: deploy-production
   cancel-in-progress: false
