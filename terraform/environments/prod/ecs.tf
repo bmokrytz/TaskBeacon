@@ -137,11 +137,13 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
 }
 
 resource "aws_ecs_service" "api" {
-    name = "taskbeacon-production-api-service"
-    cluster = aws_ecs_cluster.ecs_cluster.id
+    name            = "taskbeacon-production-api-service"
+    cluster         = aws_ecs_cluster.ecs_cluster.id
     task_definition = aws_ecs_task_definition.ecs_task_definition.arn
-    desired_count = 1
-    launch_type = "FARGATE"
+    desired_count   = 1
+    launch_type     = "FARGATE"
+    count           = var.disabled ? 0 : 1
+
     network_configuration {
         subnets          = [aws_subnet.public_1.id, aws_subnet.public_2.id]
         security_groups  = [aws_security_group.ecs.id]
@@ -149,7 +151,7 @@ resource "aws_ecs_service" "api" {
     }
 
     load_balancer {
-        target_group_arn = aws_lb_target_group.api.arn
+        target_group_arn = aws_lb_target_group.api[0].arn
         container_name   = "api"
         container_port   = 8000
     }
@@ -161,25 +163,27 @@ resource "aws_ecs_service" "api" {
     # Give the container time to wait for the DB and run migrations before health checks count
     health_check_grace_period_seconds = 60
 
-    depends_on = [aws_lb_listener_rule.api]
+    depends_on = [aws_lb_listener_rule.api[0]]
 }
 
 # Auto Scaling Target (Registers ECS service and defines limits)
 resource "aws_appautoscaling_target" "ecs_target" {
     max_capacity        = 4
     min_capacity        = 1
-    resource_id         = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.api.name}"
+    resource_id         = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.api[0].name}"
     scalable_dimension  = "ecs:service:DesiredCount"
     service_namespace   = "ecs"
+    count               = var.disabled ? 0 : 1
 }
 
 # Target Tracking Scaling Policy (Triggers on 70% CPU threshold)
 resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
     name                = "taskbeacon-production-cpu-autoscaling"
     policy_type         = "TargetTrackingScaling"
-    resource_id         = aws_appautoscaling_target.ecs_target.resource_id
-    scalable_dimension  = aws_appautoscaling_target.ecs_target.scalable_dimension
-    service_namespace   = aws_appautoscaling_target.ecs_target.service_namespace
+    resource_id         = aws_appautoscaling_target.ecs_target[0].resource_id
+    scalable_dimension  = aws_appautoscaling_target.ecs_target[0].scalable_dimension
+    service_namespace   = aws_appautoscaling_target.ecs_target[0].service_namespace
+    count               = var.disabled ? 0 : 1
 
     target_tracking_scaling_policy_configuration {
       target_value          = 70.0  # Maintain 70% average CPU utilization

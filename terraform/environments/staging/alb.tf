@@ -5,6 +5,7 @@ resource "aws_lb" "main" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+  count              = var.disabled ? 0 : 1
 
   tags = {
     Name = "taskbeacon-staging-alb"
@@ -18,6 +19,7 @@ resource "aws_lb_target_group" "api" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
+  count       = var.disabled ? 0 : 1
 
   health_check {
     enabled             = true
@@ -58,9 +60,10 @@ resource "aws_acm_certificate_validation" "api" {
 
 # 4. HTTP Listener (Port 80) - redirect everything to HTTPS
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.main.arn
+  load_balancer_arn = aws_lb.main[0].arn
   port              = "80"
   protocol          = "HTTP"
+  count             = var.disabled ? 0 : 1
 
   default_action {
     type = "redirect"
@@ -75,11 +78,12 @@ resource "aws_lb_listener" "http" {
 
 # 5. HTTPS Listener (Port 443) - rejects unknown hosts by default
 resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.main.arn
+  load_balancer_arn = aws_lb.main[0].arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
   certificate_arn   = aws_acm_certificate_validation.api.certificate_arn
+  count             = var.disabled ? 0 : 1
 
   default_action {
     type = "fixed-response"
@@ -94,8 +98,9 @@ resource "aws_lb_listener" "https" {
 
 # 6. Only forward requests addressed to the API domain to the ECS tasks
 resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.https.arn
+  listener_arn = aws_lb_listener.https[0].arn
   priority     = 100
+  count        = var.disabled ? 0 : 1
 
   condition {
     host_header {
@@ -105,6 +110,6 @@ resource "aws_lb_listener_rule" "api" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.api.arn
+    target_group_arn = aws_lb_target_group.api[0].arn
   }
 }

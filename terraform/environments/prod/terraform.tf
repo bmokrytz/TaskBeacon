@@ -30,10 +30,12 @@ provider "aws" {
     }
 }
 
-
-
 locals {
     api_domain      = "api.taskbeacon.ca"
     frontend_domain = "taskbeacon.ca"
 }
 
+variable "disabled" {
+  type    = bool
+  default = false
+}
