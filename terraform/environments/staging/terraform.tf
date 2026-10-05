@@ -7,7 +7,6 @@ terraform {
   }
 
   # Remote state in the bucket created by terraform/bootstrap
-  # (backend blocks can't use variables or locals, so values are hardcoded)
   backend "s3" {
     bucket       = "taskbeacon-tfstate-oyrheu8l2ka5yqor5e-01"
     key          = "staging/terraform.tfstate"
@@ -35,4 +34,9 @@ provider "aws" {
 locals {
   api_domain      = "api-staging.taskbeacon.ca"
   frontend_domain = "staging.taskbeacon.ca"
+}
+
+variable "disabled" {
+  type    = bool
+  default = false
 }
