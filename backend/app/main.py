@@ -1,7 +1,5 @@
 import logging
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from pathlib import Path
 import mimetypes
 
@@ -49,13 +47,30 @@ def create_app() -> FastAPI:
         openapi_url=openapi_url,
     )
     
+    # Error handling
+    from app.core.errors import register_exception_handlers
+    register_exception_handlers(app)
+    
     # Specify mimetypes
     mimetypes.add_type("application/javascript", ".js")
     mimetypes.add_type("text/css", ".css")
     
-    # Request logging 
-    from app.middleware.request_logging import RequestLoggingMiddleware
-    app.add_middleware(RequestLoggingMiddleware)
+    # Add middleware
+    # Rate limiting middleware
+    from slowapi.middleware import SlowAPIMiddleware
+    from slowapi.errors import RateLimitExceeded
+    from app.core.rate_limit import limiter
+    app.state.limiter = limiter
+    app.add_middleware(SlowAPIMiddleware)
+    
+    # TrustedHost middleware
+    from starlette.middleware.trustedhost import TrustedHostMiddleware
+        
+    if settings.ENV == "PROD":
+        app.add_middleware(
+            TrustedHostMiddleware,
+            allowed_hosts=settings.allowed_hosts_list(),
+        )
     
     # Security headers middleware
     from app.middleware.security_headers import SecurityHeadersMiddleware
@@ -74,50 +89,18 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     
-    # TrustedHost middleware
-    from starlette.middleware.trustedhost import TrustedHostMiddleware
-    if settings.ENV == "PROD":
-        app.add_middleware(
-            TrustedHostMiddleware,
-            allowed_hosts=settings.allowed_hosts_list(),
-        )
+    # Request logging middleware
+    from app.middleware.request_logging import RequestLoggingMiddleware
+    app.add_middleware(RequestLoggingMiddleware)
     
-    # Error handling
-    from app.core.errors import register_exception_handlers
-    register_exception_handlers(app)
-    
-    # Auth context middleware (sets request.state.user_id)okay I a
+    # Auth context middleware (sets request.state.user_id)
     from app.middleware.auth_context import AuthContextMiddleware
     app.add_middleware(AuthContextMiddleware)
-    
-    # Rate limiting middleware
-    from slowapi.middleware import SlowAPIMiddleware
-    from slowapi.errors import RateLimitExceeded
-    from app.core.rate_limit import limiter
-    app.state.limiter = limiter
-    app.add_middleware(SlowAPIMiddleware)
 
     # Routers
     app.include_router(health_endpoint_router)
     app.include_router(tasks_endpoint_router)
     app.include_router(auth_endpoint_router)
-    
-    # Frontend built assets (JS/CSS bundles)
-    #app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR), check_dir=True), name="static",)
-
-    # React SPA: serve the matching static file if one exists (e.g. /assets/*.js),
-    # otherwise fall back to index.html so client-side routes (e.g. /dashboard)
-    # work on a hard refresh too, not just on in-app navigation.
-    """
-    @app.get("/{full_path:path}", include_in_schema=False)
-    def serve_spa(full_path: str):
-        candidate = FRONTEND_DIR / full_path
-        if full_path and candidate.is_file():
-            return FileResponse(candidate)
-        return FileResponse(FRONTEND_DIR / "index.html")
-    """
-
-
 
     logging.getLogger(__name__).info("TaskBeacon app created ENV=%s", settings.ENV)
     return app

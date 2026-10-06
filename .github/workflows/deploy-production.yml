@@ -1,14 +1,14 @@
-name: Deploy Staging
+name: Deploy Production
 
 on:
   push:
     branches:
-      - staging
-  workflow_dispatch: # Allows re-running a deploy manually from the Actions tab
+      - production
+  workflow_dispatch:
 
-# Never run two staging deploys at once; a newer push waits for the current one to finish
+# Never run two production deploys at once; a newer push waits for the current one to finish
 concurrency:
-  group: deploy-staging
+  group: deploy-production
   cancel-in-progress: false
 
 permissions:
@@ -16,10 +16,10 @@ permissions:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: taskbeacon-staging-api
-  ECS_CLUSTER: taskbeacon-staging-cluster
-  ECS_SERVICE: taskbeacon-staging-api-service
-  VITE_API_URL: https://api-staging.taskbeacon.ca
+  ECR_REPOSITORY: taskbeacon-production-api-ecr
+  ECS_CLUSTER: taskbeacon-production-ecs-cluster
+  ECS_SERVICE: taskbeacon-production-api-service
+  VITE_API_URL: https://api.taskbeacon.ca
 
 jobs:
   # ---------------------------------------------------------------
@@ -164,7 +164,7 @@ jobs:
 
       - name: Upload to S3
         env:
-          BUCKET: ${{ vars.STAGING_FRONTEND_BUCKET }}
+          BUCKET: ${{ vars.PRODUCTION_FRONTEND_BUCKET }}
         run: |
           # Hashed assets (index-abc123.js) never change content, so browsers can cache them forever
           aws s3 sync dist/ s3://$BUCKET/ \
@@ -178,7 +178,7 @@ jobs:
 
       - name: Invalidate CloudFront Cache
         env:
-          DISTRIBUTION_ID: ${{ vars.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}
+          DISTRIBUTION_ID: ${{ vars.PRODUCTION_CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           aws cloudfront create-invalidation \
             --distribution-id $DISTRIBUTION_ID \

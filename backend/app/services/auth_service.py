@@ -39,7 +39,10 @@ def resolve_current_user(db, token: str) -> UserORM:
     - Raise InvalidCredentialsError if token is invalid or user not found.
     """
     try:
-        user_id = UUID(get_token_subject(token))
+        subject = get_token_subject(token)
+        if subject is None:
+            raise InvalidCredentialsError()
+        user_id = UUID(subject)
     except (JWTError, ValueError):
         raise InvalidCredentialsError()
     user = get_user_by_id(db, user_id)

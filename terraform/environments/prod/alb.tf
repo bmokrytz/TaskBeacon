@@ -1,6 +1,6 @@
 # 1. Application Load Balancer
 resource "aws_lb" "main" {
-  name               = "taskbeacon-staging-alb"
+  name               = "taskbeacon-production-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
@@ -8,13 +8,13 @@ resource "aws_lb" "main" {
   count              = var.disabled ? 0 : 1
 
   tags = {
-    Name = "taskbeacon-staging-alb"
+    Name = "taskbeacon-production-alb"
   }
 }
 
 # 2. Target Group (Routes traffic to port 8000 on ECS tasks)
 resource "aws_lb_target_group" "api" {
-  name        = "taskbeacon-staging-api-tg"
+  name        = "taskbeacon-production-api-tg"
   port        = 8000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -34,7 +34,7 @@ resource "aws_lb_target_group" "api" {
   }
 
   tags = {
-    Name = "taskbeacon-staging-api-tg"
+    Name = "taskbeacon-production-api-tg"
   }
 }
 
@@ -49,7 +49,7 @@ resource "aws_acm_certificate" "api" {
   }
 
   tags = {
-    Name = "taskbeacon-staging-api-cert"
+    Name = "taskbeacon-production-api-cert"
   }
 }
 
