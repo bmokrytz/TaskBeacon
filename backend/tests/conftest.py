@@ -1,3 +1,5 @@
+from uuid import UUID
+from datetime import datetime, timezone, timedelta
 import os
 
 # Build cached Settings() singleton on first import
@@ -12,11 +14,13 @@ from sqlalchemy.pool import StaticPool
 
 from app.db.base import Base
 from app.db.models.user_orm import UserORM
+from app.db.models.task_orm import TaskORM
+from app.models.task import TaskStatus
 from app.auth.security import hash_password
 
 
 @pytest.fixture()
-def db_session() -> Session:
+def db_session():
     """In-memory SQLite DB, fresh schema per test."""
     engine = create_engine(
         "sqlite:///:memory:",
@@ -61,6 +65,35 @@ def make_user(db_session):
         return user
 
     return _make_user
+
+
+@pytest.fixture()
+def user(make_user):
+    return make_user(email="user@example.com", password="Password123@")
+
+
+@pytest.fixture()
+def make_task(db_session):
+    """Factory: create a task for a test user."""
+    
+    def _make_task(owner_id: UUID,
+        title: str) -> TaskORM:
+        description = "Test description."
+        due_date = datetime.now(timezone.utc) + timedelta(days=3)
+        task = TaskORM(
+            owner_id=owner_id, 
+            title=title,
+            description=description,
+            status=TaskStatus.pending,
+            due_date=due_date
+            )
+        db_session.add(task)
+        db_session.commit()
+        db_session.refresh(task)
+        return task
+    
+    return _make_task
+        
 
 
 @pytest.fixture()

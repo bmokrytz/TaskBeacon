@@ -10,12 +10,12 @@ export default function EditTaskPanel({task}: {task: Task}) {
     const [status, setStatus] = useState(task.status);
     const [dueDate, setDueDate] = useState(task.due_date);
     const [showTitleRequired, setShowTitleRequired] = useState<boolean>(false);
+    const [showError, setShowError] = useState<boolean>(false);
 
     const navigate = useNavigate();
     const fieldBoxClassName = "flex flex-col mb-4 w-full";
     const labelClassName = "text-black font-semibold mb-3";
     const textInputClassName = "border border-gray-300 p-2 mb-2 rounded-lg";
-    const errorMsgClass = 'text-red-500 text-sm mb-3'
     const dateInputValue = toDateInputValue(dueDate);
     const titleMaxChars = 120;
     const descriptionMaxChars = 400;
@@ -31,7 +31,11 @@ export default function EditTaskPanel({task}: {task: Task}) {
         if (status !== task.status) changes.status = status;
         if (dueDate !== task.due_date) changes.due_date = dueDate ?? undefined;
         const updatedTask = await updateTask(task.id, changes);
-        if (updatedTask === null) console.error('Error updating task.');
+        if (updatedTask === null) {
+            console.error('Error updating task.');
+            setShowError(true);
+            return;
+        }
         navigate('/dashboard');
     }
 
@@ -51,19 +55,29 @@ export default function EditTaskPanel({task}: {task: Task}) {
                                 <label className={labelClassName}>
                                     Title:<span className={showTitleRequired ? 'text-red-500 pl-1' : 'hidden'}>*</span>
                                 </label>
-                                <p className={showTitleRequired ? errorMsgClass : 'hidden'}>
-                                    A title is required.
-                                </p>
                             </div>
                             <div className='flex flex-row items-center gap-3'>
-                                <input
-                                    type="text"
-                                    placeholder="you@example.com"
-                                    maxLength={titleMaxChars}
-                                    className={`${textInputClassName} w-full`}
-                                    value={title}
-                                    onChange={(e) => {setTitle(e.target.value)}}
-                                />
+                                <div className="relative w-full">
+                                    <input
+                                        type="text"
+                                        placeholder="you@example.com"
+                                        maxLength={titleMaxChars}
+                                        className={`${textInputClassName} w-full`}
+                                        value={title}
+                                        onChange={(e) => {
+                                            setTitle(e.target.value);
+                                            setShowTitleRequired(false);
+                                            setShowError(false);
+                                        }}
+                                    />
+                                    {showTitleRequired && (
+                                        <div className="absolute mr-4 z-10 right-full ml-5 -translate-y-12 bg-white border border-gray-300 rounded-lg shadow-md p-3 text-sm text-gray-700 w-64">
+                                            {/* Pointer Arrow */}
+                                            <div className="absolute top-1/4 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white border-r border-t border-gray-300 rotate-45"></div>
+                                            <p className="font-semibold mb-1">A title is required.</p>
+                                        </div>
+                                    )}
+                                </div>
                                 <p className={title.length === titleMaxChars ? 'text-red-500 self-end' : 'self-end'}>
                                     {title.length}/{titleMaxChars}
                                 </p>
@@ -79,7 +93,10 @@ export default function EditTaskPanel({task}: {task: Task}) {
                                     className={`${textInputClassName} resize-y w-full`}
                                     maxLength={descriptionMaxChars}
                                     value={description ? description : ''}
-                                    onChange={(e) => {setDescription(e.target.value)}}
+                                    onChange={(e) => {
+                                        setDescription(e.target.value);
+                                        setShowError(false);
+                                    }}
                                 />
                                 <p className={description && description.length === descriptionMaxChars ? 'text-red-500 self-end' : 'self-end'}>
                                     {description ? description.length : 0}/{descriptionMaxChars}
@@ -93,7 +110,10 @@ export default function EditTaskPanel({task}: {task: Task}) {
                             <select 
                                 className='border border-gray-300 rounded-lg p-1' 
                                 value={status} 
-                                onChange={(e) => {setStatus(e.target.value as "pending" | "in_progress" | "completed");}}>
+                                onChange={(e) => {
+                                    setStatus(e.target.value as "pending" | "in_progress" | "completed");
+                                    setShowError(false);
+                                }}>
                                 <option value="pending">Pending</option>
                                 <option value="in_progress">In Progress</option>
                                 <option value="completed">Completed</option>
@@ -107,16 +127,26 @@ export default function EditTaskPanel({task}: {task: Task}) {
                                 type="date"
                                 className={textInputClassName}  
                                 value={dateInputValue ?? undefined}
-                                onChange={(e) => setDueDate(e.target.value)}
+                                onChange={(e) => {
+                                    setDueDate(e.target.value);
+                                    setShowError(false);
+                                }}
                             />
                         </div>
                     </div>
+                    {showError && (
+                        <div className="absolute z-10 right-25 top-full-translate-y-12 mt-3 bg-red-100 border border-red-800 rounded-lg p-2 text-sm text-gray-700">
+                            {/* Pointer Arrow */}
+                            <p className="font-semibold mb-1">Something went wrong. Try again later.</p>
+                        </div>
+                    )}
                     <div className="flex self-center w-4/5">
                         <button
-                            type="submit"
+                            type='submit'
                             className="bg-button-primary hover:bg-button-hover hover:cursor-pointer text-white text-xl mr-8 font-semibold px-4 py-2 mt-3 rounded-lg"
                         >Update</button>
                         <button
+                            type='button'
                             onClick={() => {navigate('/dashboard')}}
                             className="bg-red-500 hover:bg-red-800 hover:cursor-pointer text-white text-xl mr-8 font-semibold px-4 py-2 mt-3 rounded-lg"
                         >Cancel</button>

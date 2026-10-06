@@ -9,6 +9,16 @@ terraform {
             version = "~> 4.0"
         }
     }
+
+    # Stores its own state in the bucket it creates. Only possible after the first
+    # apply: the bucket must exist before any state can be migrated into it.
+    backend "s3" {
+        bucket       = "taskbeacon-tfstate-oyrheu8l2ka5yqor5e-01"
+        key          = "bootstrap/terraform.tfstate"
+        region       = "us-east-1"
+        encrypt      = true
+        use_lockfile = true
+    }
 }
 
 provider "aws" {

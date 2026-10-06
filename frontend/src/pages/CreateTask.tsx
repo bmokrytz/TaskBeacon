@@ -115,10 +115,11 @@ export default function CreateTask() {
                     </div>
                     <div className="flex self-center w-4/5">
                         <button
-                            type="submit"
+                            type='submit'
                             className="bg-button-primary hover:bg-button-hover hover:cursor-pointer text-white text-xl mr-8 font-semibold px-4 py-2 mt-3 rounded-lg"
                         >Create</button>
                         <button
+                            type='button'
                             className="bg-red-500 hover:bg-red-800 hover:cursor-pointer text-white text-xl mr-8 font-semibold px-4 py-2 mt-3 rounded-lg"
                             onClick={() => navigate('/dashboard')}
                         >Cancel</button>

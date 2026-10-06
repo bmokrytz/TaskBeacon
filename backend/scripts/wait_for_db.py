@@ -1,6 +1,7 @@
 import time
 import sys
 from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
 from sqlalchemy.exc import OperationalError
 import os
 import traceback
@@ -10,7 +11,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 MAX_RETRIES = 20
 DELAY = 2  # seconds
 
-print("Using DATABASE_URL:", DATABASE_URL.replace(os.getenv("DB_PASSWORD", ""), "****"))
+# Never log the password: these logs end up in CloudWatch
+print("Using DATABASE_URL:", make_url(DATABASE_URL).render_as_string(hide_password=True))
 print("Waiting for database...")
 
 for i in range(MAX_RETRIES):

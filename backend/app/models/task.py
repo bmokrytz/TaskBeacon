@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Optional
 from uuid import UUID
@@ -17,7 +17,7 @@ class TaskStatus(str, Enum):
 class TaskCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=120)
     description: Optional[str] = Field(None, max_length=400)
-    status: TaskStatus
+    status: TaskStatus = TaskStatus.pending
     due_date: Optional[datetime] = None
 
     @field_validator("title")
@@ -39,7 +39,7 @@ class TaskCreate(BaseModel):
         """
         Verify that description is not blank.
         - Strip whitespace
-        - If description is blank/empty raise ValueError
+        - If description is blank/empty set it as None
         """
         if description_value is None:
             return None
@@ -54,12 +54,13 @@ class TaskCreate(BaseModel):
         - If due_date is None, return None
         - If due_date is earlier than current datetime raise ValueError
         """
+        yesterday = datetime.now(timezone.utc) - timedelta(days=1)
         if due_date_value is None:
             return None
         if due_date_value.tzinfo is None:
             due_date_value = due_date_value.replace(tzinfo=timezone.utc)
-        if due_date_value < datetime.now(timezone.utc):
-            raise ValueError("due_date must be a future date")
+        if due_date_value <= yesterday:
+            raise ValueError("due_date must be a current or future date")
         return due_date_value
 
 
@@ -78,7 +79,7 @@ class TaskUpdate(BaseModel):
         - If title is blank/empty raise ValueError
         """
         if title_value is None:
-            return None
+            raise ValueError("title cannot be null")
         title_value = title_value.strip()
         if not title_value:
             raise ValueError("title cannot be empty")
@@ -97,6 +98,17 @@ class TaskUpdate(BaseModel):
         description_value = description_value.strip()
         return description_value if description_value else None
     
+    @field_validator("status")
+    @classmethod
+    def status_cannot_be_null(cls, status_value: TaskStatus) -> TaskStatus:
+        """
+        Verify that status is not null.
+        - If status is null, raise ValueError
+        """
+        if status_value is None:
+            raise ValueError("status cannot be null")
+        return status_value
+    
     @field_validator("due_date")
     @classmethod
     def due_date_must_be_future_date_or_none(cls, due_date_value: datetime | None) -> datetime | None:
@@ -105,12 +117,13 @@ class TaskUpdate(BaseModel):
         - If due_date is None, return None
         - If due_date is earlier than current datetime raise ValueError
         """
+        yesterday = datetime.now(timezone.utc) - timedelta(days=1)
         if due_date_value is None:
             return None
         if due_date_value.tzinfo is None:
             due_date_value = due_date_value.replace(tzinfo=timezone.utc)
-        if due_date_value < datetime.now(timezone.utc):
-            raise ValueError("due_date must be a future date")
+        if due_date_value <= yesterday:
+            raise ValueError("due_date must be a current or future date")
         return due_date_value
 
 

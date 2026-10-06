@@ -62,8 +62,8 @@ export default function LoginPanel() {
                             
                     <div className="flex flex-col items-center">
                         <div className={fieldBoxClassName}>
-                            <label className={labelClassName}>
-                                Email:<span className={showEmailRequired ? errorAsteriskClassName : 'hidden'}>*</span>
+                            <label htmlFor="email" className={labelClassName}>
+                                Email:<span data-testid='email-error-asterisk' className={showEmailRequired ? errorAsteriskClassName : 'hidden'}>*</span>
                             </label>
                             <div className="relative">
                                 <input
@@ -87,8 +87,8 @@ export default function LoginPanel() {
                             </div>
                         </div>
                         <div className={fieldBoxClassName}>
-                            <label className={labelClassName}>
-                                Password:<span className={showPasswordRequired ? errorAsteriskClassName : 'hidden'}>*</span>
+                            <label htmlFor="password" className={labelClassName}>
+                                Password:<span data-testid='password-error-asterisk' className={showPasswordRequired ? errorAsteriskClassName : 'hidden'}>*</span>
                             </label>
                             <div className="relative">
                                 <input
