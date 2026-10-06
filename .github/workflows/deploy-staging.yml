@@ -4,12 +4,15 @@ on:
   push:
     branches:
       - staging
+  pull_request:
+    branches:
+      - staging
   workflow_dispatch: # Allows re-running a deploy manually from the Actions tab
 
 # Never run two staging deploys at once; a newer push waits for the current one to finish
 concurrency:
-  group: deploy-staging
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'deploy-staging' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read # Required to checkout the repository
@@ -44,7 +47,7 @@ jobs:
           cache-dependency-path: backend/requirements*.txt
 
       - name: Install Backend Dependencies
-        run: pip install -r requirements-dev.txt
+        run: pip install -r requirements.txt -r requirements-dev.txt
 
       - name: Run Backend Tests
         run: pytest
@@ -80,6 +83,7 @@ jobs:
     name: Deploy Backend (ECR + ECS)
     runs-on: ubuntu-latest
     needs: [test-backend, test-frontend]
+    if: github.event_name != 'pull_request'
     permissions:
       id-token: write # Required for requesting the JWT OIDC token from GitHub
       contents: read
@@ -131,6 +135,7 @@ jobs:
     name: Deploy Frontend (S3 + CloudFront)
     runs-on: ubuntu-latest
     needs: [test-backend, test-frontend]
+    if: github.event_name != 'pull_request'
     permissions:
       id-token: write # Required for requesting the JWT OIDC token from GitHub
       contents: read
