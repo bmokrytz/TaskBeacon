@@ -15,7 +15,7 @@ export default function TaskList({ taskList, onTaskDeleted }: { taskList: Task[]
             <div className="w-full bg-white rounded-2xl shadow-md overflow-x-auto border border-gray-300">
                 <table className="min-w-full border-collapse border-gray-300 table-fixed">
                     <thead>
-                        <tr className="bg-gray-100 text-left border-gray-300 border-b">
+                        <tr className="text-left border-gray-300 border-b">
                             <th className={`${cellClass} pl-5 w-1/4`}>Title</th>
                             <th className='w-3/8'>Description</th>
                             <th className='w-max'>Status</th>
