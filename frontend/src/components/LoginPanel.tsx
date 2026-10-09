@@ -9,6 +9,7 @@ export default function LoginPanel() {
     const [showEmailRequired, setShowEmailRequired] = useState<boolean>(false);
     const [showPasswordRequired, setShowPasswordRequired] = useState<boolean>(false);
     const [showInvalidCredentials, setShowInvalidCredentials] = useState<boolean>(false);
+    const [showInternalError, setShowInternalError] = useState<boolean>(false);
 
     const navigate = useNavigate();
     const fieldBoxClassName = "flex flex-col mb-4 w-4/5";
@@ -27,10 +28,9 @@ export default function LoginPanel() {
             const isLoginSuccessful = await login(email, password);
             if (isLoginSuccessful) {
                 localStorage.setItem("user-email", email);
-                localStorage.setItem("user-log-in-time", new Date().toLocaleString());
                 navigate("/dashboard");
             }
-            else setShowInvalidCredentials(true);
+            else setShowInternalError(true);
         } catch(error) {
             if (error instanceof ValidationError) {
                 if (error.message === "No email and no password") {
@@ -43,6 +43,8 @@ export default function LoginPanel() {
                 } else {
                     setShowInvalidCredentials(true);
                 }
+            } else {
+                setShowInternalError(true);
             }
         }
     }
@@ -51,6 +53,7 @@ export default function LoginPanel() {
         if (showEmailRequired) setShowEmailRequired(false);
         if (showPasswordRequired) setShowPasswordRequired(false);
         if (showInvalidCredentials) setShowInvalidCredentials(false);
+        if (showInternalError) setShowInternalError(false);
     }
 
     return (
@@ -117,6 +120,12 @@ export default function LoginPanel() {
                                     <div className="absolute z-10 top-full-translate-y-12 mt-3 bg-red-100 border border-red-800 rounded-lg p-2 text-sm text-gray-700">
                                         {/* Pointer Arrow */}
                                         <p className="font-semibold mb-1">Incorrect email or password.</p>
+                                    </div>
+                                )}
+                                {showInternalError && (
+                                    <div className="absolute z-10 top-full-translate-y-12 mt-3 bg-red-100 border border-red-800 rounded-lg p-2 text-sm text-gray-700">
+                                        {/* Pointer Arrow */}
+                                        <p className="font-semibold mb-1">Something went wrong. Try again later.</p>
                                     </div>
                                 )}
                             </div>
