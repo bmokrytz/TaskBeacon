@@ -72,13 +72,6 @@ def create_app() -> FastAPI:
             allowed_hosts=settings.allowed_hosts_list(),
         )
     
-    # Security headers middleware
-    from app.middleware.security_headers import SecurityHeadersMiddleware
-    app.add_middleware(
-        SecurityHeadersMiddleware, 
-        enable_csp=(settings.ENV == "PROD"),
-    )
-    
     # CORS middleware
     from fastapi.middleware.cors import CORSMiddleware
     app.add_middleware(
@@ -87,6 +80,13 @@ def create_app() -> FastAPI:
         allow_credentials=False,    # JWT in Authorization header -> cookies not needed
         allow_methods=["*"],
         allow_headers=["*"],
+    )
+    
+    # Security headers middleware
+    from app.middleware.security_headers import SecurityHeadersMiddleware
+    app.add_middleware(
+        SecurityHeadersMiddleware, 
+        enable_csp=(settings.ENV == "PROD"),
     )
     
     # Request logging middleware

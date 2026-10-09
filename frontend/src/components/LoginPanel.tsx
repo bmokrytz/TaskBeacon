@@ -25,7 +25,11 @@ export default function LoginPanel() {
     async function handleSubmit() {
         try {
             const isLoginSuccessful = await login(email, password);
-            if (isLoginSuccessful) navigate("/dashboard");
+            if (isLoginSuccessful) {
+                localStorage.setItem("user-email", email);
+                localStorage.setItem("user-log-in-time", new Date().toLocaleString());
+                navigate("/dashboard");
+            }
             else setShowInvalidCredentials(true);
         } catch(error) {
             if (error instanceof ValidationError) {
