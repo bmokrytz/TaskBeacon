@@ -17,8 +17,7 @@ def create_access_token(*, user_id: str) -> str:
     - Return JWT access token (str)
     """
     now = datetime.now(timezone.utc)
-    expire = now + timedelta(seconds=15)
-    # expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     payload = {
         "sub": user_id,
@@ -35,6 +34,14 @@ def decode_access_token(token: str) -> dict:
     - Returns the JWT payload dict if valid, otherwise raises JWTError.
     """
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+
+def get_token_expiry_time(token: str) -> str:
+    """
+    Get the expiry time from a JWT.
+    """
+    decoded = decode_access_token(token)
+    return str(decoded["exp"])
 
 
 def get_token_subject(token: str) -> str:
