@@ -1,4 +1,6 @@
+import { apiFetch } from '@/lib/api/api';
 import { validateEmail, validatePassword, validatePasswordMatch, ValidationError } from '@/lib/utils/validate';
+import { scheduleLogout } from '../services/authService';
 
 export async function login(email: string, password: string): Promise<boolean> {
     const isEmailValid = validateEmail(email);
@@ -24,7 +26,7 @@ export async function login(email: string, password: string): Promise<boolean> {
 
     const requestUrl = `${import.meta.env.VITE_API_URL}/api/auth/login`;
     try {
-        const response = await fetch(`${requestUrl}`, {
+        const response = await apiFetch(`${requestUrl}`, {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
@@ -33,8 +35,11 @@ export async function login(email: string, password: string): Promise<boolean> {
         const data = await response.json();
         const access_token = data.access_token;
         const token_type = data.token_type;
+        const expiry_time = data.expiry_time;
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('token_type', token_type);
+        localStorage.setItem('expiry_time', expiry_time);
+        scheduleLogout(Number(expiry_time));
         return response.ok;
     } catch (error) {
         console.error("Error while logging in: ", error);
@@ -61,7 +66,7 @@ export async function register(email: string, password: string, confirmPassword:
 
     const requestUrl = `${import.meta.env.VITE_API_URL}/api/auth/register`;
     try {
-        const response = await fetch(`${requestUrl}`, {
+        const response = await apiFetch(`${requestUrl}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

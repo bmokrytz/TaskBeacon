@@ -5,7 +5,7 @@ import logging
 from app.models.user import UserCreate, UserPublic
 from app.models.auth import LoginRequest, TokenResponse
 from app.core.errors import InvalidCredentialsError, EmailAlreadyInUseError
-from app.auth.jwt import create_access_token
+from app.auth.jwt import create_access_token, get_token_expiry_time
 from app.db.session import get_db
 from app.services.auth_service import authenticate_user, register_user
 from app.auth.dependencies import get_current_user
@@ -67,7 +67,8 @@ def login_endpoint(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     token = create_access_token(user_id=str(user.id))
-    return TokenResponse(access_token=token)
+    expiry = get_token_expiry_time(token)
+    return TokenResponse(access_token=token, expiry_time=expiry)
 
 
 

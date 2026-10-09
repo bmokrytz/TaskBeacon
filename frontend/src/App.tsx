@@ -1,12 +1,27 @@
+import { Routes, Route } from 'react-router';
+import { useEffect } from 'react';
+
 import Landing from '@/pages/Landing';
 import Register from '@/pages/Register';
 import Dashboard from '@/pages/Dashboard';
 import CreateTask from '@/pages/CreateTask';
 import EditTask from '@/pages/EditTask';
-import { Routes, Route } from 'react-router';
 import ProtectedRoute from './components/ProtectedRoute';
+import { scheduleLogout } from './lib/services/authService';
+
 
 function App() {
+
+  useEffect(() => {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        const expiryTime = Number(localStorage.getItem("expiry_time"));
+        if (expiryTime) {
+          scheduleLogout(expiryTime);
+        }
+      }
+    })
+  }, []);
 
   return (
     <>

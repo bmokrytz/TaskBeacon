@@ -1,3 +1,5 @@
+import { apiFetch } from '@/lib/api/api';
+
 export type Task = {
     id: string;
     title: string;
@@ -25,7 +27,7 @@ export type TaskCreate = {
 export async function getTaskById(task_id: string): Promise<Task | null> {
     const access_token = localStorage.getItem("access_token");
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${task_id}`, {
+        const response = await apiFetch(`${import.meta.env.VITE_API_URL}/api/tasks/${task_id}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${access_token}`
@@ -46,7 +48,7 @@ export async function getTaskById(task_id: string): Promise<Task | null> {
 export async function deleteTask(task_id: string): Promise<boolean> {
     const access_token = localStorage.getItem("access_token");
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${task_id}`, {
+        const response = await apiFetch(`${import.meta.env.VITE_API_URL}/api/tasks/${task_id}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${access_token}`,
@@ -63,7 +65,7 @@ export async function deleteTask(task_id: string): Promise<boolean> {
 export async function createTask(task: TaskCreate): Promise<Task | null> {
     const access_token = localStorage.getItem("access_token");
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks`, {
+        const response = await apiFetch(`${import.meta.env.VITE_API_URL}/api/tasks`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${access_token}`,
@@ -85,7 +87,7 @@ export async function createTask(task: TaskCreate): Promise<Task | null> {
 export async function getTasks(): Promise<Task[] | null> {
     const access_token = localStorage.getItem("access_token");
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks`, {
+        const response = await apiFetch(`${import.meta.env.VITE_API_URL}/api/tasks`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${access_token}`
@@ -109,7 +111,7 @@ export async function updateTask(
 ): Promise<Task | null> {
     const access_token = localStorage.getItem("access_token");
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${task_id}`, {
+        const response = await apiFetch(`${import.meta.env.VITE_API_URL}/api/tasks/${task_id}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${access_token}`,
@@ -135,7 +137,7 @@ export async function setTaskStatus(
     const access_token = localStorage.getItem("access_token");
     const update: TaskUpdate = { status: status }
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${task_id}`, {
+        const response = await apiFetch(`${import.meta.env.VITE_API_URL}/api/tasks/${task_id}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${access_token}`,

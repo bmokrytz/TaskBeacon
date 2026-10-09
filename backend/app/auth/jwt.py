@@ -36,6 +36,14 @@ def decode_access_token(token: str) -> dict:
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
 
+def get_token_expiry_time(token: str) -> str:
+    """
+    Get the expiry time from a JWT.
+    """
+    decoded = decode_access_token(token)
+    return str(decoded["exp"])
+
+
 def get_token_subject(token: str) -> str:
     """
     Get access token subject.
