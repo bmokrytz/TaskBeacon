@@ -17,7 +17,8 @@ def create_access_token(*, user_id: str) -> str:
     - Return JWT access token (str)
     """
     now = datetime.now(timezone.utc)
-    expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = now + timedelta(seconds=15)
+    # expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     payload = {
         "sub": user_id,

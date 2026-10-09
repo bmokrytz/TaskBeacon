@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/api/api';
 import { validateEmail, validatePassword, validatePasswordMatch, ValidationError } from '@/lib/utils/validate';
 
 export async function login(email: string, password: string): Promise<boolean> {
@@ -24,7 +25,7 @@ export async function login(email: string, password: string): Promise<boolean> {
 
     const requestUrl = `${import.meta.env.VITE_API_URL}/api/auth/login`;
     try {
-        const response = await fetch(`${requestUrl}`, {
+        const response = await apiFetch(`${requestUrl}`, {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
@@ -61,7 +62,7 @@ export async function register(email: string, password: string, confirmPassword:
 
     const requestUrl = `${import.meta.env.VITE_API_URL}/api/auth/register`;
     try {
-        const response = await fetch(`${requestUrl}`, {
+        const response = await apiFetch(`${requestUrl}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
