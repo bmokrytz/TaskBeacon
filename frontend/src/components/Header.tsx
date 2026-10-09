@@ -1,16 +1,8 @@
-import { useNavigate } from "react-router"; 
 import { useEffect, useState } from "react";
 
-export default function Header() {
-  const navigate = useNavigate();
+import { logout } from '@/lib/services/authService';
 
-  function handleLogout() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('token_type');
-    localStorage.removeItem('user-email');
-    localStorage.removeItem('user-log-in-time');
-    navigate('/');
-  }
+export default function Header() {
 
   return (
     <header className="bg-white border-b-gray-800 border-b py-5 px-10 flex items-center justify-between">
@@ -19,7 +11,7 @@ export default function Header() {
         {localStorage.getItem("user-email") && (<UserPanel/>)}
         <button 
           className="bg-button-primary hover:bg-button-hover hover:cursor-pointer text-white text-md px-4 py-2 rounded-xl"
-          onClick={handleLogout}
+          onClick={logout}
         >
           Logout
         </button>
