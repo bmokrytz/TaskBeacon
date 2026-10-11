@@ -1,8 +1,9 @@
 export function logout() {
     localStorage.removeItem('access_token');
-    localStorage.removeItem('token_type');
     localStorage.removeItem('user-email');
     localStorage.removeItem('expiry_time');
+    if (window.location.pathname === "/") return;
+    if (window.location.pathname === "/register") return;
     window.location.href = "/";
 }
 
