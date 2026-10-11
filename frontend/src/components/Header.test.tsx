@@ -39,20 +39,4 @@ describe('Header', () => {
         await user.click(screen.getByRole('button', { name: 'Logout' }));
         expect(mockNavigate).toHaveBeenNthCalledWith(1, '/');
     })
-
-    it('logout clears both access_token and token_type from localStorage.', async () => {
-        render(<Header />, { wrapper: MemoryRouter });
-
-        localStorage.setItem("access_token", "super_secret_token");
-        localStorage.setItem("token_type", "bearer");
-
-        expect(localStorage.getItem("access_token")).toEqual("super_secret_token");
-        expect(localStorage.getItem("token_type")).toEqual("bearer");
-
-        const user = userEvent.setup();
-        await user.click(screen.getByRole('button', { name: 'Logout' }));
-
-        expect(localStorage.getItem("access_token")).toEqual(null);
-        expect(localStorage.getItem("token_type")).toEqual(null);
-    })
 })

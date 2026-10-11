@@ -77,7 +77,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=False,    # JWT in Authorization header -> cookies not needed
+        allow_credentials=True, # JWT is stored in httpOnly cookie. Browser needs to send/receive cookies.
         allow_methods=["*"],
         allow_headers=["*"],
     )

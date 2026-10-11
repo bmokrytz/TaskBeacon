@@ -14,7 +14,8 @@ export function validatePasswordMatch(password: string, confirmPassword: string)
 }
 
 export function isLoggedIn(): boolean {
-    return localStorage.getItem("access_token") ? true : false;
+    const expiry = Number(localStorage.getItem("expiry_time"));
+    return expiry * 1000 > Date.now();
 }
 
 export class ValidationError extends Error {}

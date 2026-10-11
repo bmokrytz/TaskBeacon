@@ -22,10 +22,3 @@ class TestLoginRequest:
     def test_blank_password_rejected(self):
         with pytest.raises(ValidationError):
             LoginRequest(email="user@example.com", password="   ")
-
-
-class TestTokenResponse:
-    def test_default_token_type_is_bearer(self):
-        response = TokenResponse(access_token="token")
-        
-        assert response.token_type == "bearer"
