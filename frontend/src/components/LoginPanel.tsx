@@ -9,6 +9,7 @@ export default function LoginPanel() {
     const [showEmailRequired, setShowEmailRequired] = useState<boolean>(false);
     const [showPasswordRequired, setShowPasswordRequired] = useState<boolean>(false);
     const [showInvalidCredentials, setShowInvalidCredentials] = useState<boolean>(false);
+    const [showIncorrectCredentials, setShowIncorrectCredentials] = useState<boolean>(false);
     const [showInternalError, setShowInternalError] = useState<boolean>(false);
 
     const navigate = useNavigate();
@@ -30,7 +31,7 @@ export default function LoginPanel() {
                 localStorage.setItem("user-email", email);
                 navigate("/dashboard");
             }
-            else setShowInternalError(true);
+            else setShowIncorrectCredentials(true);
         } catch(error) {
             if (error instanceof ValidationError) {
                 if (error.message === "No email and no password") {
@@ -53,6 +54,7 @@ export default function LoginPanel() {
         if (showEmailRequired) setShowEmailRequired(false);
         if (showPasswordRequired) setShowPasswordRequired(false);
         if (showInvalidCredentials) setShowInvalidCredentials(false);
+        if (showIncorrectCredentials) setShowIncorrectCredentials(false);
         if (showInternalError) setShowInternalError(false);
     }
 
@@ -117,6 +119,12 @@ export default function LoginPanel() {
                                     </div>
                                 )}
                                 {showInvalidCredentials && (
+                                    <div className="absolute z-10 top-full-translate-y-12 mt-3 bg-red-100 border border-red-800 rounded-lg p-2 text-sm text-gray-700">
+                                        {/* Pointer Arrow */}
+                                        <p className="font-semibold mb-1">Incorrect email or password.</p>
+                                    </div>
+                                )}
+                                {showIncorrectCredentials && (
                                     <div className="absolute z-10 top-full-translate-y-12 mt-3 bg-red-100 border border-red-800 rounded-lg p-2 text-sm text-gray-700">
                                         {/* Pointer Arrow */}
                                         <p className="font-semibold mb-1">Incorrect email or password.</p>

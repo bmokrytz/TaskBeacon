@@ -13,14 +13,14 @@ import { scheduleLogout } from './lib/services/authService';
 function App() {
 
   useEffect(() => {
-    document.addEventListener("visibilitychange", () => {
+    const handleVisibility = () => {
       if (document.visibilityState === "visible") {
         const expiryTime = Number(localStorage.getItem("expiry_time"));
-        if (expiryTime) {
-          scheduleLogout(expiryTime);
-        }
+        if (expiryTime) void scheduleLogout(expiryTime);
       }
-    })
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
   return (

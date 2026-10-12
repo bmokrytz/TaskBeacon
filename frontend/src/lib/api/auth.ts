@@ -33,13 +33,9 @@ export async function login(email: string, password: string): Promise<boolean> {
         });
         if (!response.ok) return false;
         const data = await response.json();
-        const access_token = data.access_token;
-        const token_type = data.token_type;
         const expiry_time = data.expiry_time;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('token_type', token_type);
         localStorage.setItem('expiry_time', expiry_time);
-        scheduleLogout(Number(expiry_time));
+        await scheduleLogout(Number(expiry_time));
         return response.ok;
     } catch (error) {
         console.error("Error while logging in: ", error);

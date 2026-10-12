@@ -1,9 +1,9 @@
 import { logout } from '@/lib/services/authService';
 
 export async function apiFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    const response = await fetch(input, init);
+    const response = await fetch(input, { ...init, credentials: 'include' });
     if (response.status === 401) {
-        logout();
+        await logout();
     }
     return response;
 }

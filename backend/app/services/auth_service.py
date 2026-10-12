@@ -1,11 +1,16 @@
 from jose.exceptions import JWTError
 from uuid import UUID
 
+from fastapi import Response
+
 from app.core.errors import InvalidCredentialsError, EmailAlreadyInUseError
+from app.core.settings import get_settings
 from app.auth.security import hash_password, verify_password
+from app.auth.jwt import get_token_subject
 from app.db.models.user_orm import UserORM
 from app.storage.db_users import create_user, get_user_by_email, get_user_by_id
-from app.auth.jwt import get_token_subject
+
+settings = get_settings()
 
 def authenticate_user(db, email: str, password: str) -> UserORM:
     """
@@ -49,3 +54,23 @@ def resolve_current_user(db, token: str) -> UserORM:
     if user is None:
         raise InvalidCredentialsError()
     return user
+
+def set_token_cookie(response: Response, token: str) -> None:
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        path="/",
+    )
+
+def delete_token_cookie(response: Response) -> None:
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/"
+    )

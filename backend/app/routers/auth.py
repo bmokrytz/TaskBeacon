@@ -5,13 +5,13 @@ import logging
 from app.models.user import UserCreate, UserPublic
 from app.models.auth import LoginRequest, TokenResponse
 from app.core.errors import InvalidCredentialsError, EmailAlreadyInUseError
-from app.auth.jwt import create_access_token, get_token_expiry_time
-from app.db.session import get_db
-from app.services.auth_service import authenticate_user, register_user
-from app.auth.dependencies import get_current_user
-from app.api.serializers import user_orm_to_public
 from app.core.rate_limit import limiter
 from app.core.settings import get_settings
+from app.auth.jwt import create_access_token, get_token_expiry_time
+from app.auth.dependencies import get_current_user
+from app.db.session import get_db
+from app.services.auth_service import authenticate_user, register_user, set_token_cookie, delete_token_cookie
+from app.api.serializers import user_orm_to_public
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
@@ -68,7 +68,8 @@ def login_endpoint(
 
     token = create_access_token(user_id=str(user.id))
     expiry = get_token_expiry_time(token)
-    return TokenResponse(access_token=token, expiry_time=expiry)
+    set_token_cookie(response, token)
+    return TokenResponse(expiry_time=expiry)
 
 
 
@@ -87,3 +88,13 @@ def me_endpoint(
     public = user_orm_to_public(current_user)
     return public
 
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(settings.RATE_LIMIT_AUTH_LOGOUT)
+def logout_endpoint(request: Request, response: Response) -> None:
+    """
+    Logout
+    - Clear the client's access token cookie.
+    """
+    delete_token_cookie(response)
