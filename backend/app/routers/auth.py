@@ -10,7 +10,7 @@ from app.core.settings import get_settings
 from app.auth.jwt import create_access_token, get_token_expiry_time
 from app.auth.dependencies import get_current_user
 from app.db.session import get_db
-from app.services.auth_service import authenticate_user, register_user, set_token_cookie
+from app.services.auth_service import authenticate_user, register_user, set_token_cookie, delete_token_cookie
 from app.api.serializers import user_orm_to_public
 
 settings = get_settings()
@@ -88,3 +88,13 @@ def me_endpoint(
     public = user_orm_to_public(current_user)
     return public
 
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(settings.RATE_LIMIT_AUTH_LOGOUT)
+def logout_endpoint(request: Request, response: Response) -> None:
+    """
+    Logout
+    - Clear the client's access token cookie.
+    """
+    delete_token_cookie(response)

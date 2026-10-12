@@ -35,7 +35,7 @@ export async function login(email: string, password: string): Promise<boolean> {
         const data = await response.json();
         const expiry_time = data.expiry_time;
         localStorage.setItem('expiry_time', expiry_time);
-        scheduleLogout(Number(expiry_time));
+        await scheduleLogout(Number(expiry_time));
         return response.ok;
     } catch (error) {
         console.error("Error while logging in: ", error);
