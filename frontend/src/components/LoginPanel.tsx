@@ -4,13 +4,14 @@ import { login } from "@/lib/api/auth";
 import { ValidationError } from "@/lib/utils/validate";
 
 export default function LoginPanel() {
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [showEmailRequired, setShowEmailRequired] = useState<boolean>(false);
-    const [showPasswordRequired, setShowPasswordRequired] = useState<boolean>(false);
-    const [showInvalidCredentials, setShowInvalidCredentials] = useState<boolean>(false);
-    const [showIncorrectCredentials, setShowIncorrectCredentials] = useState<boolean>(false);
-    const [showInternalError, setShowInternalError] = useState<boolean>(false);
+    const [email, setEmail]                                         = useState<string>("");
+    const [password, setPassword]                                   = useState<string>("");
+    const [showEmailRequired, setShowEmailRequired]                 = useState<boolean>(false);
+    const [showPasswordRequired, setShowPasswordRequired]           = useState<boolean>(false);
+    const [showInvalidCredentials, setShowInvalidCredentials]       = useState<boolean>(false);
+    const [showIncorrectCredentials, setShowIncorrectCredentials]   = useState<boolean>(false);
+    const [showInternalError, setShowInternalError]                 = useState<boolean>(false);
+    const [showPassword, setShowPassword]                           = useState<boolean>(false);
 
     const navigate = useNavigate();
     const fieldBoxClassName = "flex flex-col mb-4 w-4/5";
@@ -101,7 +102,7 @@ export default function LoginPanel() {
                             </label>
                             <div className="relative">
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     id="password"
                                     placeholder="••••••••••••••••"
                                     className={showPasswordRequired ? errorTextInputClassName : textInputClassName}  
@@ -111,6 +112,14 @@ export default function LoginPanel() {
                                         resetErrors();
                                     }}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    className="absolute inset-y-0 right-0 px-3"
+                                >
+                                <span className="material-symbols-outlined text-gray-600 hover:cursor-pointer" aria-hidden="true">{showPassword ? "visibility_off" : "visibility"}</span>
+                                </button>
                                 {showPasswordRequired && (
                                     <div className="absolute mr-4 z-10 right-full ml-5 -translate-y-12 bg-white border border-gray-300 rounded-lg shadow-md p-3 text-sm text-gray-700 w-64">
                                         {/* Pointer Arrow */}
