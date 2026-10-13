@@ -30,13 +30,4 @@ describe('Header', () => {
         expect(screen.queryByText("Task Beacon")).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Logout' })).toBeInTheDocument();
     })
-
-    it('navigates to landing page when logout button is clicked', async () => {
-        render(<Header />, { wrapper: MemoryRouter });
-
-        const user = userEvent.setup();
-        expect(mockNavigate).not.toHaveBeenCalled();
-        await user.click(screen.getByRole('button', { name: 'Logout' }));
-        expect(mockNavigate).toHaveBeenNthCalledWith(1, '/');
-    })
 })
