@@ -114,6 +114,9 @@ resource "aws_ecs_task_definition" "api" {
         # Trust X-Forwarded-For from the ALB so rate limiting sees real client IPs
         # (safe because the ECS security group only accepts traffic from the ALB)
         { name = "FORWARDED_ALLOW_IPS", value = "*" },
+        { name = "EMAIL_ENABLED", value = "True" },
+        { name = "EMAIL_FROM", value = "noreply@staging.taskbeacon.ca" },
+        { name = "EMAIL_ALLOWED_RECIPIENTS", value = jsonencode(["brandonmokryt@hotmail.ca"]) },
       ]
 
       # Secrets pulled from SSM Parameter Store at container start
