@@ -22,6 +22,7 @@ env:
   ECR_REPOSITORY: taskbeacon-production-api-ecr
   ECS_CLUSTER: taskbeacon-production-ecs-cluster
   ECS_SERVICE: taskbeacon-production-api-service
+  ECS_TASK_DEFINITION: taskbeacon-production-api
   VITE_API_URL: https://api.taskbeacon.ca
 
 jobs:
@@ -116,6 +117,23 @@ jobs:
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Run Database Migrations
+        env:
+          SUBNET_IDS: ${{ vars.PRODUCTION_ECS_SUBNET_IDS }}
+          ECS_SG_ID: ${{ vars.PRODUCTION_ECS_SECURITY_GROUP_ID }}
+        run: |
+          TASK_ARN=$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --task-definition "$ECS_TASK_DEFINITION" \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_IDS],securityGroups=[$ECS_SG_ID],assignPublicIp=ENABLED}" \
+            --overrides '{"containerOverrides":[{"name":"api","command":["alembic","upgrade","head"]}]}' \
+            --query 'tasks[0].taskArn' --output text)
+          aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$TASK_ARN"
+          EXIT_CODE=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$TASK_ARN" \
+            --query 'tasks[0].containers[0].exitCode' --output text)
+          [ "$EXIT_CODE" = "0" ] || { echo "Migration failed (exit $EXIT_CODE)"; exit 1; }
 
       - name: Force ECS Redeployment
         run: |

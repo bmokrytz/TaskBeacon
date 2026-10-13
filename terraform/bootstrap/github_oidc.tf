@@ -119,7 +119,34 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
         Effect   = "Allow"
         Action   = ["cloudfront:CreateInvalidation", "cloudfront:GetInvalidation"]
         Resource = "arn:aws:cloudfront::${local.account_id}:distribution/*"
-      }
+      },
+      {
+        # One-off migration task, run from the same task definition as the service
+        Sid      = "EcsRunMigrationTask"
+        Effect   = "Allow"
+        Action   = ["ecs:RunTask"]
+        Resource = "arn:aws:ecs:us-east-1:${local.account_id}:task-definition/taskbeacon-*:*"
+      },
+      {
+        # Poll the migration task until it stops, then read its exit code
+        Sid      = "EcsDescribeMigrationTask"
+        Effect   = "Allow"
+        Action   = ["ecs:DescribeTasks"]
+        Resource = "arn:aws:ecs:us-east-1:${local.account_id}:task/taskbeacon-*/*"
+      },
+      {
+        # RunTask must hand the task its execution and task roles
+        Sid    = "PassEcsRoles"
+        Effect = "Allow"
+        Action = ["iam:PassRole"]
+        Resource = [
+          "arn:aws:iam::${local.account_id}:role/taskbeacon-*-ecs-execution-role",
+          "arn:aws:iam::${local.account_id}:role/taskbeacon-*-ecs-task-role",
+        ]
+        Condition = {
+          StringEquals = { "iam:PassedToService" = "ecs-tasks.amazonaws.com" }
+        }
+      },
     ]
   })
 }

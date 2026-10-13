@@ -117,6 +117,8 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
                 { name = "CORS_ORIGINS", value = jsonencode(["https://${local.frontend_domain}"]) },
                 { name = "ALLOWED_HOSTS", value = "*" },
                 { name = "FORWARDED_ALLOW_IPS", value = "*" },
+                { name = "EMAIL_ENABLED", value = "True" },
+                { name = "EMAIL_FROM", value = "noreply@taskbeacon.ca" },
             ]
 
             secrets = [
